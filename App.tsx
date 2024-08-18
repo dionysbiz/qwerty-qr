@@ -10,6 +10,10 @@ import 'react-native-get-random-values';
 
 import React, { useEffect } from 'react';
 
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, IconRegistry, Layout, Text } from '@ui-kitten/components';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+
 //import { COMM_SERVER_URL, INFURA_API_KEY } from '@env';
 import {
   MetaMaskProvider,
@@ -111,7 +115,10 @@ export default function() {
       initialInfuraKey="139a076676e1447094981c79ac0b6acc"
     >
       <WithSDKConfig>
-        <DemoScreen />
+        <IconRegistry icons={EvaIconsPack} />
+        <ApplicationProvider {...eva} theme={eva.dark}>
+          <DemoScreen />
+        </ApplicationProvider>
       </WithSDKConfig>
     </SDKConfigProvider>
   );

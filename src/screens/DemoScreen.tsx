@@ -8,24 +8,112 @@
 import React, { useState } from 'react';
 import {
   Button,
+  Text,
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Text,
   View,
   useColorScheme,
 } from 'react-native';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout } from '@ui-kitten/components';
 
 import { useSDK } from '@metamask/sdk-react';
 import { encrypt } from 'eciesjs';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import packageJSON from '../../package.json';
+import PropTypes from 'prop-types';
+import { TopNavbar } from '../layouts/dashboard/TopNavbar';
 import { DAPPView } from '../views/DappView';
 
-export function DemoScreen(): JSX.Element {
+import { zhHK, en } from '../translate';
+
+// ----------------------------------------------------------------------
+/*
+DemoScreen.propTypes = {
+  onChangeLang: PropTypes.func,
+  langPack: PropTypes.object
+};
+*/
+
+const [langPack, setLangPack] = useState(en)
+
+const handleLangChange = (lang: string) => {
+  switch (lang) {
+    case 'zhHK':
+      setLangPack(zhHK);
+      break;
+    case 'en':
+      setLangPack(en);
+      break;
+    default:
+      setLangPack(en);
+  }
+};
+
+export function DemoScreen({}): JSX.Element {
+  const [langPack, setLangPack] = useState(en)
+
+  const handleLangChange = (langIndex: any) => {
+    console.log(langIndex)
+    switch (langIndex) {
+      case '1':
+        setLangPack(zhHK);
+        break;
+      case '0':
+        setLangPack(en);
+        break;
+      default:
+        setLangPack(en);
+    }
+  };
+  
   const isDarkMode = useColorScheme() === 'dark';
   const [encryptionTime, setEncryptionTime] = useState<number>();
-  const { sdk } = useSDK();
+  const {
+    sdk,
+    provider: ethereum,
+    status,
+    chainId,
+    account,
+    balance,
+    readOnlyCalls,
+    connected,
+  } = useSDK();
+  const [response, setResponse] = useState<unknown>('');
+
+  const [navbarOpen, setNavbarOpen] = useState(false);
+
+  const connectWithMetamask = async () => {
+    try {
+      const accounts = (await sdk?.connect()) as string[];
+      console.log('accounts', accounts);
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  };
+
+  const addChain = async () => {
+    try {
+      setResponse('');
+      const result = await ethereum?.request({
+        method: 'wallet_addEthereumChain',
+        params: [
+          {
+            chainId: '0x89',
+            chainName: 'Polygon',
+            blockExplorerUrls: ['https://polygonscan.com'],
+            nativeCurrency: { symbol: 'MATIC', decimals: 18 },
+            rpcUrls: ['https://polygon-rpc.com/'],
+          },
+        ],
+      });
+      console.log('addChain', result);
+      setResponse(result);
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  };
 
   if (!sdk) {
     return <Text>SDK loading</Text>;
@@ -65,10 +153,11 @@ export function DemoScreen(): JSX.Element {
         <View
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
-            marginTop: 30,
+            marginTop: 10,
             backgroundColor: Colors.white,
           }}
         >
+          {/*
           <Text style={{ color: Colors.black, fontSize: 24 }}>
             expo-demo Mobile Dapp Test ( RN{' '}
             {`v${packageJSON.dependencies['react-native']
@@ -76,10 +165,23 @@ export function DemoScreen(): JSX.Element {
               .replaceAll('\n', '')}`}
             )
           </Text>
-          <Button title="TestEncrypt" onPress={testEncrypt} />
-          <Text style={{ color: Colors.black }}>
-            {encryptionTime && `Encryption time: ${encryptionTime} ms`}
-          </Text>
+ 
+          */}
+          <TopNavbar onOpenSidebar={() => 
+            setNavbarOpen(true)} 
+            onConnect={connectWithMetamask}
+            onAddChain={addChain} 
+            onChangeLang={handleLangChange} 
+            langPack={langPack}
+          />
+          
+          {/* 
+            <Button title="TestEncrypt" onPress={testEncrypt} />
+            <Text style={{ color: Colors.black }}>
+              {encryptionTime && `Encryption time: ${encryptionTime} ms`}
+            </Text>
+          */}
+
           <DAPPView />
         </View>
       </ScrollView>

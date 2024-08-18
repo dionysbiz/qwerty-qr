@@ -1,6 +1,8 @@
 import { useSDK } from '@metamask/sdk-react';
 import React, { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as eva from '@eva-design/eva';
+import { Avatar, ApplicationProvider, Layout } from '@ui-kitten/components';
 import { colors } from './colors';
 import { ServiceStatusView } from './service-status-view';
 import { ServiceStatus } from '@metamask/sdk';
@@ -270,10 +272,10 @@ export const DAPPView = (_props: DAPPViewProps) => {
   };
 
   return (
-    <View style={{ borderWidth: 2, padding: 5 }}>
+    <View style={{ margin: 10, borderWidth: 2, padding: 5 }}>
       <Text style={styles.title}>
         {sdk?._getDappMetadata()?.name} (
-        {connected ? 'connected' : 'disconnected'})
+        {connected ? 'connected' : 'disconnectedd'})
       </Text>
       <ServiceStatusView serviceStatus={status as ServiceStatus} />
 
@@ -281,17 +283,25 @@ export const DAPPView = (_props: DAPPViewProps) => {
         <Button title="Test read-only calls" onPress={testReadOnlyCalls} />
       )}
 
+    <Avatar size='small' source={require('../public/static/icons/MetaMask_Fox_connected.png')} />
+
+
       {connected ? (
         <>
           <Button title={'Request Accounts'} onPress={connect} />
           <Button title="Sign" onPress={sign} />
           <Button title="testEthers" onPress={testEthers} />
           <Button title="Send transaction" onPress={sendTransaction} />
+          {/* 
           <Button title="Add chain" onPress={exampleRequest} />
+          */}
           <Button title="Batch Calls" onPress={batch} />
+          
           <Text style={textStyle}>
+            {/* 
             {chainId && `Connected chain: ${chainId}\n`}
             {account && `Connected account: ${account}\n\n`}
+            */}
             {account && balance && `Balance: ${balance} ETH`}
           </Text>
           <Text style={textStyle}>
@@ -299,7 +309,7 @@ export const DAPPView = (_props: DAPPViewProps) => {
           </Text>
         </>
       ) : (
-        <Button title={'Connect'} onPress={connect} />
+        <></>
       )}
 
       <TouchableOpacity
