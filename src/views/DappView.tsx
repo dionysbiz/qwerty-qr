@@ -272,7 +272,7 @@ export const DAPPView = (_props: DAPPViewProps) => {
   };
 
   return (
-    <View style={{ margin: 10, borderWidth: 2, padding: 5 }}>
+    <View style={{ margin: 10, marginTop: 50, borderWidth: 2, padding: 5,  }}>
       <Text style={styles.title}>
         {sdk?._getDappMetadata()?.name} (
         {connected ? 'connected' : 'disconnectedd'})
