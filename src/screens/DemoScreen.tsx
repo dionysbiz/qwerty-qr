@@ -29,12 +29,6 @@ import { DAPPView } from '../views/DappView';
 import { zhHK, en } from '../translate';
 
 // ----------------------------------------------------------------------
-/*
-DemoScreen.propTypes = {
-  onChangeLang: PropTypes.func,
-  langPack: PropTypes.object
-};
-*/
 
 const [langPack, setLangPack] = useState(en)
 
@@ -93,23 +87,45 @@ export function DemoScreen({}): JSX.Element {
     }
   };
 
-  const addChain = async () => {
+  const addChain = async (chain:any) => {
     try {
       setResponse('');
-      const result = await ethereum?.request({
-        method: 'wallet_addEthereumChain',
-        params: [
-          {
-            chainId: '0x89',
-            chainName: 'Polygon',
-            blockExplorerUrls: ['https://polygonscan.com'],
-            nativeCurrency: { symbol: 'MATIC', decimals: 18 },
-            rpcUrls: ['https://polygon-rpc.com/'],
-          },
-        ],
-      });
-      console.log('addChain', result);
-      setResponse(result);
+      console.log("call addChain")
+      console.log("chain",chain)
+      console.log("chainId",chain.chainId)
+      console.log("chainName",chain.chainName)
+      console.log("blockExplorer",chain.blockExplorerUrls)
+      console.log("nativeCurrency",chain.nativeCurrency)
+      console.log("rpcUrls",chain.rpcUrls)
+      if (chain.chainId==='0x1') {
+        setResponse('');
+        const result = await ethereum?.request({
+          method: 'wallet_switchEthereumChain',
+          params: [
+            {
+              chainId: chain.chainId,
+            },
+          ],
+        });
+        console.log('switchChain', result);
+        setResponse(result);
+      } else {
+        const result = await ethereum?.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: chain.chainId,
+              chainName: chain.chainName,
+              blockExplorerUrls: chain.blockExplorerUrls,
+              nativeCurrency: chain.nativeCurrency,
+              rpcUrls: chain.rpcUrls,
+            },
+          ],
+        });
+        console.log('addChain', result);
+        setResponse(result);
+      }
+      
     } catch (e) {
       console.log('ERROR', e);
     }

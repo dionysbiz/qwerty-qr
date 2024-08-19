@@ -11,6 +11,8 @@ import {
   OverflowMenu,
   TopNavigation,
   TopNavigationAction,
+  useStyleSheet,
+  StyleService
 } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 import { TouchableWebElement } from '@ui-kitten/components/devsupport';
@@ -19,50 +21,10 @@ import { useSDK } from '@metamask/sdk-react';
 //import Donationbar from './Donationbar';
 //import AccountPopover from './AccountPopover';
 import { LanguagePopover2 } from './LanguagePopover2';
+import { MetamaskConnectLogo } from './MetamaskConnectLogo';
 import { IconAnimationRegistry } from '@ui-kitten/components/ui/icon/iconAnimation';
 
-const MetamaskConnectedIcon = (props): React.ReactElement => (
-  <Avatar style={avtstyles.avatar} size='small' source={require('../../public/static/icons/MetaMask_Fox_connected.png')} />
-);
 
-const MetamaskNotConnectedIcon = (props): React.ReactElement => (
-  <Avatar style={avtstyles.avatar} size='small' source={require('../../public/static/icons/MetaMask_Fox_notconnected.png')} />
-);
-
-const BackIcon = (props): IconElement => (
-  <Icon
-    {...props}
-    name='arrow-back'
-  />
-);
-
-const EditIcon = (props): IconElement => (
-  <Icon
-    {...props}
-    name='edit'
-  />
-);
-
-const MenuIcon = (props): IconElement => (
-  <Icon
-    {...props}
-    name='more-vertical'
-  />
-);
-
-const InfoIcon = (props): IconElement => (
-  <Icon
-    {...props}
-    name='info'
-  />
-);
-
-const LogoutIcon = (props): IconElement => (
-  <Icon
-    {...props}
-    name='log-out'
-  />
-);
 
 export type Props = {
   onOpenSidebar: any,
@@ -84,6 +46,84 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
     readOnlyCalls,
     connected,
   } = useSDK();
+
+  const MetamaskConnectedIcon = (props): React.ReactElement => (
+    <Avatar 
+      style={iconstyles.avatar} 
+      size='small' 
+      source={require('../../public/static/icons/MetaMask_Fox_connected.png')} />
+  );
+  
+  const MetamaskNotConnectedIcon = (props): React.ReactElement => (
+    <Avatar 
+      style={iconstyles.avatar} 
+      size='small' 
+      source={require('../../public/static/icons/MetaMask_Fox_notconnected.png')} />
+  );
+  
+  const BackIcon = (props): IconElement => (
+    <Icon
+      {...props}
+      name='arrow-back'
+    />
+  );
+  
+  const EditIcon = (props): IconElement => (
+    <Icon
+      {...props}
+      name='edit'
+    />
+  );
+  
+  const MenuIcon = (props): IconElement => (
+    <Icon
+      {...props}
+      name='more-vertical'
+    />
+  );
+  
+  const InfoIcon = (props): IconElement => (
+    <Icon
+      {...props}
+      name='info'
+    />
+  );
+  
+  const LogoutIcon = (props): IconElement => (
+    <Icon
+      {...props}
+      name='log-out'
+    />
+  );
+
+  const styles = useStyleSheet(StyleService.create({
+    topNav: {
+      flex: 1,
+      backgroundColor: 'color-warning-400', 
+      //height: 10
+      maxHeight:10,
+      justifyContent: 'space-between',
+    },
+    topNav2: {
+    },
+    container: {
+    },
+  }));
+  const iconstyles = useStyleSheet(StyleService.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      padding: 5,
+    },
+    avatar: {
+      margin: 2,
+      width: 24,
+      height: 24,
+      bgcolor: 'currentColor',
+    },
+  }));
+
 
   const [menuVisible, setMenuVisible] = React.useState(false);
   const [titleTop, setTitleTop] = useState<string>("");
@@ -136,32 +176,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
   );
 
   const renderRightActions2 = (): React.ReactElement => (
-    <>
-      {connected ? (
-        <>
-          <Button
-            style={avtstyles.avatar}
-            appearance='ghost'
-            status='danger'
-            onPress={onAddChain}
-            accessoryLeft={MetamaskConnectedIcon}
-          />
-  
-        </>
-      ) : (
-        <> 
-          <Button
-            style={avtstyles.avatar}
-            appearance='ghost'
-            status='danger'
-            onPress={onConnect}
-            accessoryLeft={MetamaskNotConnectedIcon}
-          />
-        </>
-      )}
-      
-
-    </>
+    <MetamaskConnectLogo onConnect={onConnect} onAddChain={onAddChain} />
   );
 
   const renderBackAction = (): TouchableWebElement => (
@@ -201,7 +216,8 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
       level='1'
     >
       <TopNavigation
-        style={styles.topNav}
+        //style={[styles.topNav, { backgroundColor: theme['color-primary-default'] }]}
+        style={[styles.topNav,]}
         alignment='center'
         title={
           connected ? (
@@ -220,6 +236,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
       
       <Divider />
       <TopNavigation
+        style={styles.topNav2}
         alignment='center'
         title='Eva Application'
         subtitle={() => {
@@ -236,28 +253,3 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
     
   );
 };
-
-
-
-const avtstyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    padding: 5,
-  },
-  avatar: {
-    margin: 2,
-    width: 24,
-    height: 24,
-    bgcolor: 'currentColor',
-  },
-});
-
-const styles = StyleSheet.create({
-  topNav: {
-    bgcolor: 'white',
-  },
-  container: {
-  },
-});
