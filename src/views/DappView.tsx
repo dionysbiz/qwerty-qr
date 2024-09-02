@@ -7,6 +7,7 @@ import { colors } from './colors';
 import { ServiceStatusView } from './service-status-view';
 import { ServiceStatus } from '@metamask/sdk';
 import { ethers } from 'ethers';
+import { PaypalCheckout } from '../components/PaypalCheckout';
 
 export interface DAPPViewProps {}
 
@@ -285,7 +286,7 @@ export const DAPPView = (_props: DAPPViewProps) => {
 
     <Avatar size='small' source={require('../public/static/icons/MetaMask_Fox_connected.png')} />
 
-
+    <PaypalCheckout />
       {connected ? (
         <>
           <Button title={'Request Accounts'} onPress={connect} />
