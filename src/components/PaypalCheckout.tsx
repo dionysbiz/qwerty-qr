@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import React from 'react';
 import { useSDK } from '@metamask/sdk-react';
+import DeviceInfo from 'react-native-device-info'
 //import create from 'braintree-web-dropin';
 //var braintreeDropin = require('braintree-web-drop-in').create;
 var braintree = require('braintree-web/client');
@@ -71,7 +72,8 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
   const requestBrainTreeClientToken = async () => {
     console.log("Ready2Call getClientTokenRequest");
 
-    axios.get("http://10.0.2.2:8088/getClientTokenRequest").then((responseFromBraintree) => {
+    //axios.get("http://10.0.2.2:8088/getClientTokenRequest").then((responseFromBraintree) => {
+      axios.get("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
       console.log(responseFromBraintree.data);
       
       /*
@@ -109,7 +111,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
           //debug: true
         },
         function (err: any, client: any) {
-          //console.log(client)
+          console.log(client)
           if (err) {
             console.log(err);
             if (err.code === 'CLIENT_AUTHORIZATION_INVALID') {
@@ -136,10 +138,110 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
               },
             },
             function cb(err: any, response: any) {
-              console.log('this is call back');
-              console.log(err);
+              console.log("DeviceInfo:")
+              console.log(DeviceInfo);
+              console.log("Response before createTransaction")
               console.log(response);
+              console.log("Nonce:")
+              console.log(response.creditCards[0].nonce);
+              
+              const header = {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'nonce': response.creditCards[0].nonce,
+                  'amount': '10',
+                  'currency': 'GBP'
+                }
+              };
+              const deviceInfo = {
+                "carrier": '',
+                "device": '',
+                "bundleId": '',
+                "deviceName": '',
+                "buildNumber": '',
+                "ip": '',
+                "mac": '',
+                "manufacturer": '',
+                "version": ''
+              }
+              /* Android only
+              DeviceInfo.getDevice().then((device) => {
+                // "walleye"
+              });
+              let deviceId = DeviceInfo.getDeviceId();
+              DeviceInfo.getDeviceName().then((deviceName) => {
+                // iOS: "Becca's iPhone 6"
+                // Android: ?
+                // Windows: ?
+              });
+              DeviceInfo.getHost().then((host) => {
+                // "wprd10.hot.corp.google.com"
+              });
+              DeviceInfo.getLastUpdateTime().then((lastUpdateTime) => {
+                // Android: 1517681764992
+              });
+              DeviceInfo.isAirplaneMode().then((airplaneModeOn) => {
+                // false
+              });
+              DeviceInfo.getHardware().then(hardware => {
+                // "walleye"
+              });
+              */
+
+              /* iOS only
+              DeviceInfo.syncUniqueId().then((uniqueId) => {
+                // iOS: "FCDBD8EF-62FC-4ECB-B2F5-92C9E79AC7F9"
+                // Android: "dd96dec43fb81c97"
+                // Windows: ?
+              });
+              */
+
+              let buildNumber = DeviceInfo.getBuildNumber();
+              deviceInfo.buildNumber=buildNumber
+              let bundleId = DeviceInfo.getBundleId();
+              deviceInfo.bundleId =bundleId
+              DeviceInfo.getCarrier().then((carrier) => {
+                // "SOFTBANK"
+                deviceInfo.carrier=carrier
+              });
+              
+              
+              DeviceInfo.getIpAddress().then((ip) => {
+                // "92.168.32.44"
+                deviceInfo.ip=ip
+              });
+              
+              DeviceInfo.getMacAddress().then((mac) => {
+                // "E5:12:D8:E5:69:97"
+                deviceInfo.mac=mac
+              });
+              DeviceInfo.getManufacturer().then((manufacturer) => {
+                // iOS: "Apple"
+                // Android: "Google"
+                // Windows: ?
+                deviceInfo.manufacturer=manufacturer
+              });
+              
+              let version = DeviceInfo.getVersion();
+              // iOS: "1.0"
+              // Android: "1.0" or "1.0.2-alpha.12"
+              // Windows: ?
+              deviceInfo.version=version
+              
+              DeviceInfo.isEmulator().then((isEmulator) => {
+                // false
+              });
+                
+
               // Send response.creditCards[0].nonce to your server
+              axios.post("http://10.0.2.2:8088/createTransaction",
+                deviceInfo,
+                header
+              ).then((response2FromBraintree) => {
+              //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/createTransaction").then((response2FromBraintree) => {
+                console.log("Response of createTransaction")
+                console.log(response2FromBraintree);
+              })
             }
           );
         }
