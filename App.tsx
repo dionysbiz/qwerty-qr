@@ -13,6 +13,7 @@ import React, { useEffect } from 'react';
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, IconRegistry, Layout, Text } from '@ui-kitten/components';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { AppNavigator } from './navigation.component';
 
 //import { COMM_SERVER_URL, INFURA_API_KEY } from '@env';
 import {
@@ -22,7 +23,6 @@ import {
 } from '@metamask/sdk-react';
 import { AppState, AppStateStatus, Linking, LogBox } from 'react-native';
 import BackgroundTimer from 'react-native-background-timer';
-import { DemoScreen } from './src/screens/DemoScreen';
 
 LogBox.ignoreLogs([
   'Possible Unhandled Promise Rejection',
@@ -117,7 +117,7 @@ export default function() {
       <WithSDKConfig>
         <IconRegistry icons={EvaIconsPack} />
         <ApplicationProvider {...eva} theme={eva.dark}>
-          <DemoScreen />
+          <AppNavigator/>
         </ApplicationProvider>
       </WithSDKConfig>
     </SDKConfigProvider>
