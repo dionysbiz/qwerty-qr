@@ -285,8 +285,6 @@ export const DAPPView = (_props: DAPPViewProps) => {
       )}
 
     <Avatar size='small' source={require('../public/static/icons/MetaMask_Fox_connected.png')} />
-
-    <PaypalCheckout />
       {connected ? (
         <>
           <Button title={'Request Accounts'} onPress={connect} />

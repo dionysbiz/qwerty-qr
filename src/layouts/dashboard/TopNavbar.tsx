@@ -98,10 +98,10 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
 
   const styles = useStyleSheet(StyleService.create({
     topNav: {
-      flex: 1,
+      //flex: 1,
       backgroundColor: 'color-warning-400', 
-      //height: 10
-      maxHeight:10,
+      //height: 150,
+      maxHeight: 20,
       justifyContent: 'space-between',
     },
     topNav2: {
@@ -134,41 +134,9 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
     setMenuVisible(!menuVisible);
   };
 
-  /*
-  const renderMenuAction = (): TouchableWebElement => (
-    <TopNavigationAction
-      icon={MenuIcon}
-      onPress={toggleMenu}
-    />
-  );
-  */
-
   const renderRightActions = (): TouchableWebElement => (
     
     <>
-      {//<TopNavigationAction icon={EditIcon} />
-      }
-      {//<NotificationsPopover langPack={langPack}/>
-      }
-      {//<AccountPopover langPack={langPack}/>
-      }
-      
-      {/*
-      <OverflowMenu
-        anchor={renderMenuAction}
-        visible={menuVisible}
-        onBackdropPress={toggleMenu}
-      >
-        <MenuItem
-          accessoryLeft={InfoIcon}
-          title='About'
-        />
-        <MenuItem
-          accessoryLeft={LogoutIcon}
-          title='Logout'
-        />
-      </OverflowMenu>
-      */}
       
       <LanguagePopover2 onChangeLang={onChangeLang}/>
 
@@ -232,22 +200,6 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
             "Not connected to any blockchain"
           )}
         accessoryRight={renderRightActions2}
-      />
-      
-      <Divider />
-      <TopNavigation
-        style={styles.topNav2}
-        alignment='center'
-        title='Eva Application'
-        subtitle={() => {
-          {connected ? (
-            "Connected to chain:"
-          ) : (
-            ""
-          )}
-        }}
-        accessoryLeft={renderBackAction}
-        accessoryRight={renderRightActions}
       />
     </Layout>
     
