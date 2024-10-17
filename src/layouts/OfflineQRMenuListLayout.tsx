@@ -1,20 +1,60 @@
 import React from 'react';
-import { Button, Icon, IconElement, List, ListItem, Layout, Text } from '@ui-kitten/components';
-import { StyleSheet } from 'react-native';
+import { useRef, useState, useEffect } from 'react';
+import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
+import { StyleSheet, Alert, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
+import { OfflineItemEditCard } from '../components/OfflineItemEditCard'
 
 
 interface IListItem {
-  title: string;
+  id: string,
+  name: string;
   description: string;
+  crypto_name_short: string,
+  price_crypto_ezread: string, // short form without 0s
+  dateCreate?: Date,
+  dateUpdate?: Date,
 }
-
-const data = new Array(16).fill({
+/*
+let data = new Array(16).fill({
   title: 'Title for Item',
   description: 'Description for Item',
 });
+*/
+
+const OfflineQRItemSchema = {
+  name: 'OfflineQRItem',
+  primaryKey: 'id',
+  properties: {
+    id: 'string',
+    onScreenIdx: 'int',
+    name:  'string',
+    description: 'string?',
+    crypto_name_short: 'string',
+    price_crypto_ezread: 'string', // short form without 0s
+    dateCreate: 'date',
+    dateUpdate: 'date',
+  }
+};
+
+const itemNull:IListItem = {
+  id: '',
+  onScreenIdx: 0,
+  name: null,
+  description: null,
+  crypto_name_short: null,
+  price_crypto_ezread: null,
+  dateCreate: null,
+  dateUpdate: null,
+}
 
 export const OfflineQRMenuListLayout = (): JSX.Element => {
+  // ---------------State variables--------------- 
+  const [currentLang, setCurrentLang] = useState("en");
+  const [itemList, setItemList] = useState<IListItem[] | []>([]);;
+  const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
+  const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
 
   const renderItemAccessory = (): React.ReactElement => (
     <Button size='tiny'>
@@ -35,36 +75,180 @@ QR Code
 
   const renderItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
-      title={`${item.title} ${index + 1}`}
+      title={`${item.name} ${index + 1}`}
       description={`${item.description} ${index + 1}`}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderItemAccessory}
+      onPressOut={() => onClickItemOntheList(item)}
     />
   );
 
+  // ---------------onPress Handler---------------
+
+  const onClickAddItemButton = () => {
+    
+    let item:IListItem = {
+      //onScreenIdx: itemList.length,
+      id: "",
+      name: "",
+      description: "Description",
+      crypto_name_short: 'null',
+      price_crypto_ezread: '0',
+      dateCreate: new Date(),
+      dateUpdate: new Date(),
+    }
+    setCurrentEditingItem(item)
+    setItemDetailModalVisible(true)
+  }
+
+  const onClickItemOntheList = (item:IListItem) => {
+    console.log(item.id)
+    setCurrentEditingItem(item)
+    setItemDetailModalVisible(true)
+  }
+
+  const onClickSavebutton = (item) => {
+    
+    createUpdateOfflineQRItem(
+      item.id,
+      itemList.length,
+      item.name,
+      item.description,
+      item.cryptoNameShort,
+      item.price_crypto_ezread,
+      item.dateCreate,
+      new Date(),
+    )
+    setItemDetailModalVisible(false)
+  }
+
+  const onClickBackGround = () => {
+    
+    setItemDetailModalVisible(false)
+  }
+
+  const loadOfflineQRItem2List = () => {
+    let realm = new Realm({schema: [OfflineQRItemSchema]});
+    let data = [{name: 'FirstItemname', description: 'DescripTioN'}]
+    data=[]
+
+    Realm.open({schema: [OfflineQRItemSchema]})
+    .then(realm => {
+      // ... use the realm instance to read and modify data
+      let realmItemList = realm.objects('OfflineQRItem')
+
+      for (let p of realmItemList) {
+        let item:IListItem = {
+          name: String(p.name), 
+          description: String(p.description),
+          crypto_name_short: String((p.crypto_name_short)),
+          price_crypto_ezread: String((p.price_crypto_ezread)),
+          dateCreate: new Date(p.dateCreate),
+          dateUpdate: new Date(p.dateUpdate),
+        }
+        data.push(item)
+      }
+
+      setItemList(data)
+      realm.close();
+    })
+    
+    //realm.close();
+  }
+  
+  const createUpdateOfflineQRItem = (
+    id: string,
+    onScreenIdx: number,
+    name: string,
+    description: string,
+    cryptoNameShort: string,
+    price_crypto_ezread: string,
+    dateCreate: Date,
+    dateUpdate: Date,
+  ) => {
+    let realm = new Realm({schema: [OfflineQRItemSchema]});
+    realm.write(() => {
+      let item = realm.create('OfflineQRItem', {
+        id: id,
+        onScreenIdx: onScreenIdx,
+        name:  name,
+        description: description,
+        crypto_name_short: cryptoNameShort,
+        price_crypto_ezread: price_crypto_ezread, // short form without 0s
+        dateCreate: dateCreate,
+        dateUpdate: dateUpdate,
+      });
+    });
+  }
+  
+  const deleteOfflineQRItem = (
+    id: number,
+    onScreenIdx: number,
+    name: string,
+    description: string,
+    crypto_name_short: string,
+    price_crypto_ezread: string,
+    dateCreate: Date,
+    dateUpdate: Date,
+  ) => {
+    let realm = new Realm({schema: [OfflineQRItemSchema]});
+    let item = realm.create('OfflineQRItem', {id: 1});
+    realm.delete(item)
+  }
+  
+  const deleteAllOfflineQRItem = (
+  ) => {
+    let realm = new Realm({schema: [OfflineQRItemSchema]});
+    let allItem = realm.objects('OfflineQRItem');
+    realm.delete(allItem)
+  }
+
+  useEffect(() => {
+    
+    loadOfflineQRItem2List()
+  })
+
   return (
-    <Layout>
-      <Layout
-        style={styles.rowContainer}
-        level='1'
+    <View style={styles.container}>
+
+      <Modal
+        visible={itemDetailModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setItemDetailModalVisible(false)}
       >
-        <Text category='h5' >
-          QR Menu Item
-        </Text>
-        <Button
-          style={styles.addItemButton}
-          appearance='ghost'
-          status='danger'
-          accessoryLeft={renderAddItemIcon}
+        <OfflineItemEditCard 
+          item={currentEditingItem} 
+          createItemHandler={createUpdateOfflineQRItem}
+          saveItemHandler={onClickSavebutton}
+        />
+      </Modal>
+
+      <Layout>
+        <Layout
+          style={styles.rowContainer}
+          level='1'
+        >
+          <Text category='h5'>
+            QR Menu Items
+          </Text>
+          <Button
+            style={styles.addItemButton}
+            appearance='ghost'
+            accessoryLeft={renderAddItemIcon}
+            onPress={ () => onClickAddItemButton()}
+          />
+        </Layout>
+
+        <List
+          style={styles.container}
+          data={itemList}
+          renderItem={renderItem}
         />
       </Layout>
-      
-      <List
-        style={styles.container}
-        data={data}
-        renderItem={renderItem}
-      />
-    </Layout>
+
+    </View>
+    
+    
     
   );
 };
@@ -72,6 +256,9 @@ QR Code
 const styles = StyleSheet.create({
   container: {
     maxHeight: '100%',
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   rowContainer: {
     flexDirection: 'row',
