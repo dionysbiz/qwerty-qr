@@ -15,7 +15,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { zhHK, en } from './src/translate';
 import { useSDK } from '@metamask/sdk-react';
 
-import { HomeScreen } from './src/screens/HomeScreen';
+import { BuyCryptoScreen } from './src/screens/BuyCryptoScreen';
 import { MetamaskSDKDemoScreen } from './src/screens/MetamaskSDKDemoScreen';
 import { LogisticScreen } from './src/screens/LogisticScreen';
 import { ShopManagementScreen } from './src/screens/ShopManagementScreen';
@@ -194,8 +194,8 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='HomeScreen' component={HomeScreen}/>
-          <Stack.Screen name='PaymentScreen' component={() => <PaymentScreen />}/>
+          <Stack.Screen name='BuyCryptoScreen' component={BuyCryptoScreen}/>
+          <Stack.Screen name='PaymentScreen' component={PaymentScreen}/>
         </Stack.Navigator>
     )
     //navigation={MyStack}
