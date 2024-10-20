@@ -7,8 +7,6 @@
 
 import React, { useState } from 'react';
 import {
-  Button,
-  Text,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -16,7 +14,10 @@ import {
   useColorScheme,
 } from 'react-native';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout } from '@ui-kitten/components';
+import { ApplicationProvider, Layout, Button, Text } from '@ui-kitten/components';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { NavigationContainer } from '@react-navigation/native';
 
 import { useSDK } from '@metamask/sdk-react';
 import { encrypt } from 'eciesjs';
@@ -45,8 +46,17 @@ const handleLangChange = (lang: string) => {
   }
 };
 
-export function PaymentScreen({}): JSX.Element {
+export type Props = {
+  navigation: any,
+};
+
+export function PaymentScreen({ navigation }): JSX.Element {
   const [langPack, setLangPack] = useState(en)
+
+  // ---------------navigate function--------------- 
+  const navigateHome = () => {
+    navigation.navigate('BuyCryptoScreen');
+  };
 
   const handleLangChange = (langIndex: any) => {
     console.log(langIndex)
@@ -146,6 +156,9 @@ export function PaymentScreen({}): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
+      <Button onPress={navigateHome}>
+        Back
+      </Button>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           // eslint-disable-next-line react-native/no-inline-styles
