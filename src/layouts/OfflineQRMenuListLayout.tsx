@@ -5,6 +5,10 @@ import { StyleSheet, Alert, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
 import { OfflineItemEditCard } from '../components/OfflineItemEditCard'
+import {
+  QrCodeSvg,
+  plainRenderer,
+} from 'react-native-qr-svg';
 
 
 interface IListItem {
@@ -54,18 +58,27 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
   const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
+  const [qRCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
+  const [currentQRItemJSON, setCurrentQRItemJSON] = useState("");
 
-  const renderItemAccessory = (): React.ReactElement => (
-    <Button size='tiny'>
-QR Code
+  //
+  const renderItemAccessory = (item): React.ReactElement => (
+    <>
+    <Button 
+      size='tiny' 
+      disabled={false} 
+      onPress={ () => onClickShowQRCodebutton(item)
+      }>
+      QR Code
     </Button>
+    </>
   );
 
   const renderItemIcon = (props): IconElement => (
     <Icon
       {...props}
-      name='person'
+      name='archive-outline'
     />
   );
 
@@ -78,8 +91,8 @@ QR Code
       title={`${item.name} ${index + 1}`}
       description={`${item.description} ${index + 1}`}
       accessoryLeft={renderItemIcon}
-      accessoryRight={renderItemAccessory}
-      onPressOut={() => onClickItemOntheList(item)}
+      accessoryRight={renderItemAccessory(item)}
+      onPress={() => onClickItemOntheList(item)}
     />
   );
 
@@ -120,6 +133,17 @@ QR Code
       new Date(),
     )
     setItemDetailModalVisible(false)
+  }
+
+  const onClickShowQRCodebutton = (item) => {
+    item.scanAction="transfer"
+    item.toWalletAddr="currentwallet Address"
+    item.erc20ContractAddr="contract address"
+    item.chain="chainId"
+    let content = JSON.stringify(item)
+    // TO deserialize: JSON.parse(item)
+    setCurrentQRItemJSON(content)
+    setQRCodeModalVisible(true)
   }
 
   const onClickBackGround = () => {
@@ -208,6 +232,8 @@ QR Code
     loadOfflineQRItem2List()
   })
 
+  const SIZE = 170;
+
   return (
     <View style={styles.container}>
 
@@ -221,6 +247,34 @@ QR Code
           createItemHandler={createUpdateOfflineQRItem}
           saveItemHandler={onClickSavebutton}
         />
+      </Modal>
+
+      <Modal
+        visible={qRCodeModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setQRCodeModalVisible(false)}
+      >
+        <View style={styles.qrroot}>
+          <View style={styles.qrcontent}>
+            <QrCodeSvg
+              style={styles.qr}
+              gradientColors={['#0800ff', '#ff0000']}
+              value={currentQRItemJSON}
+              frameSize={SIZE}
+            />
+            <Text category='h5'>
+              Message
+            </Text> 
+            <Button 
+              size='large' 
+              disabled={false} 
+              >
+              PRINT
+            </Button>
+          </View>
+        </View> 
+
+
       </Modal>
 
       <Layout>
@@ -267,5 +321,27 @@ const styles = StyleSheet.create({
   },
   addItemButton: {
     margin: 2,
+  },
+  //QR code related
+  qrroot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qrcontent: {
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qrbox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qricon: {
+    fontSize: 20,
+  },
+  qr: {
+    padding: 15,
   },
 });
