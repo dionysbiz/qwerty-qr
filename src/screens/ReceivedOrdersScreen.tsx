@@ -10,7 +10,7 @@ import {
   useColorScheme,
 } from 'react-native';
 
-export function ReveivedOrdersScreen({}): JSX.Element {
+export function ReceivedOrdersScreen({}): JSX.Element {
   // ---------------State variables--------------- 
 
   // ---------------Style Sheets---------------

@@ -372,7 +372,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     
   }
 
-  const createTransaction = async () => {
+  const createTransaction = async (amount:String, fiatCurrency:String) => {
     setLoadingDisable(true)
     console.log("Ready2Call getClientTokenRequest");
 
@@ -453,7 +453,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
                 headers: {
                   'Content-Type': 'application/json',
                   'nonce': response.creditCards[0].nonce,
-                  'amount': '10',
+                  'amount': amount,
                   'currency': 'GBP'
                 }
               };
@@ -534,13 +534,22 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       <CreditCardInput onChange={onCreditCardChange}/>
       
       { verifiedCreditcard.number!=='' ? 
+      <>
       <Button
       //appearance='ghost'
       status='danger'
-      onPress={createTransaction}
+      onPress={createTransaction(1000)}
       >
-        PAYPAL
+        Buy $1000
       </Button>
+      <Button
+      //appearance='ghost'
+      status='danger'
+      onPress={createTransaction(5000)}
+      >
+        Buy $5000
+      </Button>
+      </>
      : null }
       
     </>

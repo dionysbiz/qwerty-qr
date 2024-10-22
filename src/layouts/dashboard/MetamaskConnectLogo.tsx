@@ -34,8 +34,24 @@ const CHAINLIST = [
     chainId: '0x89',
     chainName: 'Polygon',
     blockExplorerUrls: ['https://polygonscan.com'],
-    nativeCurrency: { symbol: 'MATIC', decimals: 18 },
+    nativeCurrency: { symbol: 'POL', decimals: 18 },
     rpcUrls: ['https://polygon-rpc.com/'],
+  },
+  {
+    id: 2,
+    chainId: '0xa4b1',
+    chainName: 'Arbitrum',
+    blockExplorerUrls: ['https://arbiscan.io/'],
+    nativeCurrency: { symbol: 'ETH', decimals: 18 },
+    rpcUrls: ['https://arbitrum.llamarpc.com/'],
+  },
+  {
+    id: 3,
+    chainId: '0xa',
+    chainName: 'OP Mainnet',
+    blockExplorerUrls: ['https://optimistic.etherscan.io/'],
+    nativeCurrency: { symbol: 'ETH', decimals: 18 },
+    rpcUrls: ['https://optimism-rpc.publicnode.com'],
   }
 ]
 

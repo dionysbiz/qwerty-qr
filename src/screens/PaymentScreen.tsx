@@ -5,8 +5,9 @@
  * @format
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -17,7 +18,7 @@ import * as eva from '@eva-design/eva';
 import { ApplicationProvider, Layout, Button, Text } from '@ui-kitten/components';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer,  } from '@react-navigation/native';
 
 import { useSDK } from '@metamask/sdk-react';
 import { encrypt } from 'eciesjs';
@@ -50,12 +51,25 @@ export type Props = {
   navigation: any,
 };
 
-export function PaymentScreen({ navigation }): JSX.Element {
+export function PaymentScreen({ route, navigation }): JSX.Element {
   const [langPack, setLangPack] = useState(en)
+  const [navbarOpen, setNavbarOpen] = useState(false);
+  const [currentChainId, setCurrentChainId] = useState("");
+  const [isSameChain, setIsSameChain] = useState(false);
+  
+
+  const { fiatCurrency, 
+          targetChainId,
+          targetChainName,
+          targetBlockExplorerUrls,
+          targetNativeCurrency,
+          targetRpcUrls
+        } = route.params;
 
   // ---------------navigate function--------------- 
   const navigateHome = () => {
-    navigation.navigate('BuyCryptoScreen');
+    //navigation.navigate('BuyCryptoScreen');
+    navigation.goBack();
   };
 
   const handleLangChange = (langIndex: any) => {
@@ -86,8 +100,7 @@ export function PaymentScreen({ navigation }): JSX.Element {
   } = useSDK();
   const [response, setResponse] = useState<unknown>('');
 
-  const [navbarOpen, setNavbarOpen] = useState(false);
-
+  
   const connectWithMetamask = async () => {
     try {
       const accounts = (await sdk?.connect()) as string[];
@@ -120,21 +133,27 @@ export function PaymentScreen({ navigation }): JSX.Element {
         console.log('switchChain', result);
         setResponse(result);
       } else {
+
         const result = await ethereum?.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
               chainId: chain.chainId,
               chainName: chain.chainName,
-              blockExplorerUrls: chain.blockExplorerUrls,
-              nativeCurrency: chain.nativeCurrency,
-              rpcUrls: chain.rpcUrls,
+              blockExplorerUrls: [chain.blockExplorerUrls],
+              nativeCurrency: {
+                name: chain.nativeCurrency,
+                symbol: chain.nativeCurrency,
+                decimals: 18
+            },
+              rpcUrls: [chain.rpcUrls],
             },
           ],
         });
         console.log('addChain', result);
         setResponse(result);
       }
+      setCurrentChainId(chain.chainId)
       
     } catch (e) {
       console.log('ERROR', e);
@@ -150,6 +169,37 @@ export function PaymentScreen({ navigation }): JSX.Element {
     flex: 1,
   };
 
+  const chain={
+    chainId: targetChainId,
+    chainName: targetChainName,
+    blockExplorerUrls: targetBlockExplorerUrls,
+    nativeCurrency: targetNativeCurrency,
+    rpcUrls: targetRpcUrls
+  }
+
+  useEffect(() => {
+    //promiseHttpGasPrice()
+    setCurrentChainId(chainId)
+    
+    if (targetChainId === currentChainId) {
+      //Alert.alert(currentChainId)
+      console.log("do nothing")
+      setIsSameChain(true)
+    } else {
+      const chain={
+        chainId: targetChainId,
+        chainName: targetChainName,
+        blockExplorerUrls: targetBlockExplorerUrls,
+        nativeCurrency: targetNativeCurrency,
+        rpcUrls: targetRpcUrls
+      }
+      setIsSameChain(false)
+      //addChain2(chain)
+    }
+    
+      
+  })
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -157,8 +207,11 @@ export function PaymentScreen({ navigation }): JSX.Element {
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <Button onPress={navigateHome}>
-        Back
+        Back 
       </Button>
+
+      { isSameChain ? 
+      <>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           // eslint-disable-next-line react-native/no-inline-styles
@@ -168,8 +221,31 @@ export function PaymentScreen({ navigation }): JSX.Element {
           }}
         >
           <PaymentView />
+          
         </View>
       </ScrollView>
+      </>
+      : 
+      <>
+        <Button onPress={()=>addChain(chain)}>
+          Add Chain to Wallet 
+        </Button>
+      </>
+      }
+
+
+      <Text status='success'>
+      {fiatCurrency}
+      </Text>
+      <Text status='success'>
+        Chain From SDK {chainId} {currentChainId}
+      </Text>
+
+      <Text status='success'>
+      {targetChainId} {targetChainName} {targetBlockExplorerUrls} {targetNativeCurrency} {targetRpcUrls}
+      </Text>
+      
+      
     </SafeAreaView>
   );
 }

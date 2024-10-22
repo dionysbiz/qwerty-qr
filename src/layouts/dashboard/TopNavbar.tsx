@@ -170,6 +170,12 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
       case '0x89':
         name = ('Polygon');
       break;
+      case '0xa4b1':
+        name = ('Arbitrum');
+      break;
+      case '0xa':
+        name = ('OP Mainnet');
+      break;
       default:
         name = ('UNKNOWN');
     }

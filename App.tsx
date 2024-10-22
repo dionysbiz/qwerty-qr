@@ -23,6 +23,7 @@ import {
 } from '@metamask/sdk-react';
 import { AppState, AppStateStatus, Linking, LogBox } from 'react-native';
 import BackgroundTimer from 'react-native-background-timer';
+import { StorageManagerRN } from './src/StorageManagerRN';
 
 LogBox.ignoreLogs([
   'Possible Unhandled Promise Rejection',
@@ -75,6 +76,7 @@ const WithSDKConfig = ({ children }: { children: React.ReactNode }) => {
         checkInstallationImmediately,
         storage: {
           enabled: true,
+          storageManager: new StorageManagerRN()
         },
         dappMetadata: {
           name: 'rnmetamask2',

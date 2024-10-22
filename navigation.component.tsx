@@ -21,7 +21,7 @@ import { LogisticScreen } from './src/screens/LogisticScreen';
 import { ShopManagementScreen } from './src/screens/ShopManagementScreen';
 import { OnlineShopItemScreen } from './src/screens/OnlineShopItemScreen';
 import { OfflineQRMenuScreen } from './src/screens/OfflineQRMenuScreen';
-import { ReveivedOrdersScreen } from './src/screens/ReveivedOrdersScreen';
+import { ReceivedOrdersScreen } from './src/screens/ReceivedOrdersScreen';
 import { PaymentScreen } from './src/screens/PaymentScreen';
 
 import { TopNavbar } from './src/layouts/dashboard/TopNavbar';
@@ -47,6 +47,7 @@ export const AppNavigator = (): JSX.Element => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [langPack, setLangPack] = useState(en)
   const [response, setResponse] = useState<unknown>('');
+  const [currentChainId, setCurrentChainId] = useState("")
 
   const {
     sdk,
@@ -208,7 +209,7 @@ export const AppNavigator = (): JSX.Element => {
           <Stack.Screen name='ShopManagementScreen' component={ShopManagementScreen}/>
           <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
           <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
-          <Stack.Screen name='ReveivedOrdersScreen' component={() =><ReveivedOrdersScreen/>}/>
+          <Stack.Screen name='ReveivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
 
         </Stack.Navigator>
     )
