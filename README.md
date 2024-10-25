@@ -2,7 +2,7 @@ This is a demo React Native app connecting using Metamask SDK
 
 # Update @ 22 Oct 2024
 
-I think I should write some thing about this app for some body who needs to know more about this app and the whole project
+I think I should write some thing about this app for some body who needs to know more about this app and the whole project.
 
 ## Main features
 This app has 3 main purposes
@@ -18,8 +18,6 @@ The app will show available ERC20s under corresponding chain. After the user ent
 Accepted transaction request will be recorded in braintree waiting for settlement and then to AWS DynamoDB as a record.
 
 The settled transaction will be scanned by the backend with regular basis and so the ERC20 will be sent out to users wallet.
-
-
 
 ### QR code for Item purchase
 Shop owners can generate QR code for their products so that that customer can use the app's scanner to trigger a ERC20 transfer on blockchain.
