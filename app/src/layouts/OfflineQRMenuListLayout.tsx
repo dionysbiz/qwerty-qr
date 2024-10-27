@@ -9,14 +9,16 @@ import {
   QrCodeSvg,
   plainRenderer,
 } from 'react-native-qr-svg';
-
+import { useSDK } from '@metamask/sdk-react';
 
 interface IListItem {
   id: string,
   name: string;
   description: string;
   crypto_name_short: string,
-  price_crypto_ezread: string, // short form without 0s
+  crypto_contract_addr: string,
+  crypto_chain_id: string,
+  crypto_price_ezread: string, // short form without 0s
   dateCreate?: Date,
   dateUpdate?: Date,
 }
@@ -36,7 +38,9 @@ const OfflineQRItemSchema = {
     name:  'string',
     description: 'string?',
     crypto_name_short: 'string',
-    price_crypto_ezread: 'string', // short form without 0s
+    crypto_contract_addr: 'string',
+    crypto_chain_id: 'string',
+    crypto_price_ezread: 'string', // short form without 0s
     dateCreate: 'date',
     dateUpdate: 'date',
   }
@@ -48,7 +52,9 @@ const itemNull:IListItem = {
   name: null,
   description: null,
   crypto_name_short: null,
-  price_crypto_ezread: null,
+  crypto_contract_addr: null,
+  crypto_chain_id: null,
+  crypto_price_ezread: null,
   dateCreate: null,
   dateUpdate: null,
 }
@@ -61,6 +67,19 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   const [qRCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
   const [currentQRItemJSON, setCurrentQRItemJSON] = useState("");
+
+
+
+  const {
+    sdk,
+    provider: ethereum,
+    status,
+    chainId,
+    account,
+    balance,
+    readOnlyCalls,
+    connected,
+  } = useSDK();
 
   //
   const renderItemAccessory = (item): React.ReactElement => (
@@ -105,8 +124,10 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       id: "",
       name: "",
       description: "Description",
-      crypto_name_short: 'null',
-      price_crypto_ezread: '0',
+      crypto_name_short: "Select Token",
+      crypto_contract_addr: null,
+      crypto_chain_id: null,
+      crypto_price_ezread: '0',
       dateCreate: new Date(),
       dateUpdate: new Date(),
     }
@@ -127,8 +148,10 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       itemList.length,
       item.name,
       item.description,
-      item.cryptoNameShort,
-      item.price_crypto_ezread,
+      item.crypto_name_short,
+      item.crypto_contract_addr,
+      chainId,
+      item.crypto_price_ezread,
       item.dateCreate,
       new Date(),
     )
@@ -137,9 +160,8 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
 
   const onClickShowQRCodebutton = (item) => {
     item.scanAction="transfer"
-    item.toWalletAddr="currentwallet Address"
-    item.erc20ContractAddr="contract address"
-    item.chain="chainId"
+    item.toWalletAddr=account
+    //item.erc20ContractAddr="contract address"
     let content = JSON.stringify(item)
     // TO deserialize: JSON.parse(item)
     setCurrentQRItemJSON(content)
@@ -166,7 +188,9 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
           name: String(p.name), 
           description: String(p.description),
           crypto_name_short: String((p.crypto_name_short)),
-          price_crypto_ezread: String((p.price_crypto_ezread)),
+          crypto_contract_addr: String((p.crypto_contract_addr)),
+          crypto_chain_id: String((p.crypto_chain_id)),
+          crypto_price_ezread: String((p.crypto_price_ezread)),
           dateCreate: new Date(p.dateCreate),
           dateUpdate: new Date(p.dateUpdate),
         }
@@ -185,20 +209,25 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     onScreenIdx: number,
     name: string,
     description: string,
-    cryptoNameShort: string,
-    price_crypto_ezread: string,
+    crypto_name_short: string,
+    crypto_contract_addr: string,
+    crypto_chain_id: string,
+    crypto_price_ezread: string,
     dateCreate: Date,
     dateUpdate: Date,
   ) => {
     let realm = new Realm({schema: [OfflineQRItemSchema]});
+    //write to local Database
     realm.write(() => {
       let item = realm.create('OfflineQRItem', {
         id: id,
         onScreenIdx: onScreenIdx,
         name:  name,
         description: description,
-        crypto_name_short: cryptoNameShort,
-        price_crypto_ezread: price_crypto_ezread, // short form without 0s
+        crypto_name_short: crypto_name_short,
+        crypto_contract_addr: crypto_contract_addr,
+        crypto_chain_id: crypto_chain_id,
+        crypto_price_ezread: crypto_price_ezread, // short form without 0s
         dateCreate: dateCreate,
         dateUpdate: dateUpdate,
       });
@@ -211,7 +240,9 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     name: string,
     description: string,
     crypto_name_short: string,
-    price_crypto_ezread: string,
+    crypto_contract_addr: string,
+    crypto_chain_id: string,
+    crypto_price_ezread: string,
     dateCreate: Date,
     dateUpdate: Date,
   ) => {

@@ -1,8 +1,70 @@
 import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, Card, Text, Layout, Input } from '@ui-kitten/components';
+import { Button, IndexPath, Card, Text, Layout, Select, SelectItem, MenuItem, Input, OverflowMenu } from '@ui-kitten/components';
 import PropTypes from 'prop-types';
+import { useSDK } from '@metamask/sdk-react';
+
+let TOKENLIST = []
+
+const CHAINTOKENLIST = [
+  {
+    //Local Hardhat Test Chain
+    chainId: '0x7A69',
+    crypto:
+    [
+      {
+        id: 0,
+        name_short: 'Mnemonic',
+        contract_addr: ''
+      },
+    
+    ]
+  },
+  {
+    //Mainnet
+    chainId: '0x1',
+    crypto:
+    [
+      {
+        id: 0,
+        name_short: 'USDT',
+        contract_addr: '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+      },
+      {
+        id: 1,
+        name_short: 'Mnemonic',
+        contract_addr: ''
+      },
+    
+    ]
+  },
+  {
+    //Arbitrum
+    chainId: '0xa4b1',
+    crypto:
+    [
+      {
+        id: 0,
+        name_short: 'USDT',
+        contract_addr: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'
+      },    
+    ]
+  },
+  {
+    //OP Mainnet
+    chainId: '0xa',
+    crypto:
+    [
+      {
+        id: 0,
+        name_short: 'USDT',
+        contract_addr: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58'
+      },
+    ]
+  },
+  
+]
 
 export type Props = {
   item: any,
@@ -14,22 +76,90 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   //const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
+  const [CHAINTOKENLISTVisible, setCHAINTOKENLISTVisible] = React.useState(false);
+  const [tokenList, setTokenList] = React.useState([]);
+  const [selectedTokenIndex, setSelectedTokenIndex] = React.useState(new IndexPath(0));
 
   const [itemId, setItemId] = useState(item.id);
   const [itemName, setItemName] = useState(item.name);
   const [itemDescription, setItemDescription] = useState(item.description);
   const [itemCryptoShort, setItemCryptoShort] = useState(item.crypto_name_short);
+  const [itemCryptoContractAddr, setItemCryptoContractAddr] = useState(item.crypto_contract_addr);
+  const [itemCryptoChainId, setItemCryptoChainId] = useState(item.crypto_chain_id);
   const [itemPriceCryptoEzread, setItemPriceCryptoEzread] = useState(item.price_crypto_ezread);
   const [itemDateCreate, setItemDateCreate] = useState(item.dateCreate);
   const [itemDateUpdate, setItemDateUpdate] = useState(item.dateUpdate);
+
+  const [tokenShortDisplayValue, setTokenShortDisplayValue] = useState("Select token");
+  const [saveBtnDisable, setSaveBtnDisable] = useState(true);
+
+  //const [placementIndex, setPlacementIndex] = React.useState(new IndexPath(1, 0));
+  //const placement = placements[placementIndex.row];
+  let displayValue = TOKENLIST[selectedTokenIndex.row];
+
+  const {
+    sdk,
+    provider: ethereum,
+    status,
+    chainId,
+    account,
+    balance,
+    readOnlyCalls,
+    connected,
+  } = useSDK();
   
 
   // ---------------Visual Items--------------- 
   //const isDarkMode = useColorScheme() === 'dark';
+  const renderMenuAction = (): React.ReactElement => (
+    <Select
+      placeholder='Select Token'
+      //value={placement}
+      //selectedIndex={placementIndex}
+      //onSelect={onPlacementSelect}
+    >
+      
+    </Select>
+  );
 
   // ---------------navigate function--------------- 
 
   // ---------------onPress Handler---------------
+  const toggleCHAINTOKENLIST = (): void => {
+    setCHAINTOKENLISTVisible(!CHAINTOKENLISTVisible);
+  };
+
+  const handleTokenSelect = (index) => {
+    //console.log("handleTokenSelect")
+    console.log("index",index)
+    //console.log("chainArr[index.row]",chainArr[index.row])
+    console.log(TOKENLIST)
+    const token= TOKENLIST.crypto[index.row]
+    console.log(token)
+    setSelectedTokenIndex(index)
+    setItemCryptoContractAddr(token.contract_addr)
+    setItemCryptoChainId(chainId)
+    setItemCryptoShort(token.name_short)
+    setTokenShortDisplayValue(token.name_short)
+    //toggleCHAINTOKENLIST()
+  };
+
+  const checkAllDataAvailable = () => {
+    let priceNum = parseInt(itemPriceCryptoEzread)
+    if (
+      
+      (itemName && itemName!=='') &&
+      (itemCryptoContractAddr && itemCryptoContractAddr!=='') &&
+      (itemPriceCryptoEzread && itemPriceCryptoEzread!=='') &&
+      (priceNum >0)
+    ) {
+      setSaveBtnDisable(false)
+    }
+
+      
+
+
+  };
 
   const hashCode = function(str:String) {
     var hash = 0,
@@ -43,8 +173,14 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
     return hash;
   }
 
+  
+
   useEffect(() => {
-    
+    /*
+    if (itemCryptoShort==='Select Token') {
+      setItemCryptoShort(null)
+    }
+    */
     //loadOfflineQRItem2List()
   })
 
@@ -65,29 +201,69 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
       <Text>Last Update: {itemDateUpdate}</Text>  
   */
   return (
-    
+    <Layout style={styles.modalcontainer}>
     <Card style={styles.container} disabled={true}>
-      <Input
+      <Input style={styles.inputbox}
         placeholder='Item Name'
         value={itemName}
-        onChangeText={nextValue => setItemName(nextValue)}
+        onChangeText={nextValue => {
+          setItemName(nextValue)
+          checkAllDataAvailable()
+        }}
       />
       <Input style={styles.inputbox}
          textStyle={styles.inputTextStyle}
         placeholder='Description'
         value={itemDescription}
         multiline={true}
-        onChangeText={nextValue => setItemDescription(nextValue)}
+        onChangeText={nextValue => {
+          setItemDescription(nextValue)
+          checkAllDataAvailable()
+        }}
       />
-      <Input
-        placeholder='Crypto Currency'
-        value={itemCryptoShort}
-        onChangeText={nextValue => setItemCryptoShort(nextValue)}
-      />
-      <Input
+      <Select style={styles.inputbox}
+        //placeholder='Select Token'
+        //visible={CHAINTOKENLISTVisible}
+        //onBackdropPress={toggleCHAINTOKENLIST}
+        value={tokenShortDisplayValue}
+        selectedIndex={selectedTokenIndex}
+        onSelect={nextValue => {
+          handleTokenSelect(nextValue)
+          checkAllDataAvailable()
+        }}
+      >
+        {CHAINTOKENLIST.map((option, listIndex) => {
+          if (option.chainId === chainId) {
+            //setTokenList(option)
+            TOKENLIST = option
+          }
+          return (
+
+            option.chainId === chainId ? (
+              
+              <>
+              {option.crypto.map((it, index) => (
+                <SelectItem 
+                key={it.id} 
+                title={it.name_short}   
+                //selected={handleTokenSelect(it)}
+                
+                />
+              ))}
+              </>
+            
+            ) : <></>
+          )
+      })}
+      </Select>
+      <Input style={styles.inputbox}
         placeholder='Price'
         value={itemPriceCryptoEzread}
-        onChangeText={nextValue => setItemPriceCryptoEzread(nextValue)}
+        onChangeText={nextValue => {
+          setItemPriceCryptoEzread(nextValue.replace(/[^0-9]/g, ''))
+          checkAllDataAvailable()
+        }}
+        keyboardType='numeric'
       />
 
       {itemId !== '' &&
@@ -99,7 +275,9 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
 
       
       
-      <Button onPress={() => {
+      <Button style={styles.inputbox}
+        disabled={saveBtnDisable}
+        onPress={() => {
         let newId= ''
         let newCreateDate:Date=new Date()
         let newUpdateDate:Date=new Date()
@@ -122,6 +300,8 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
             "name": itemName,
             "description": itemDescription,
             "cryptoNameShort": itemCryptoShort,
+            "contractAddr": itemCryptoContractAddr,
+            "chainId": itemCryptoChainId,
             "price_crypto_ezread": itemPriceCryptoEzread,
             "dateCreate": newCreateDate
           }
@@ -130,21 +310,31 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
         Save
       </Button>
     </Card>
+    </Layout>
   )
 };
 
 const styles = StyleSheet.create({
+  modalcontainer: {
+    minWidth: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
-    width: '800' , 
+    width: '100%' , 
+    alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    margin: 2
+    margin: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
     margin: 2,
   },
   inputbox: {
     marginVertical: 2,
+    width: '100%' ,
   },
   inputTextStyle: {
     minHeight: 64,
