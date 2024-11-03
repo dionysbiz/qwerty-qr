@@ -10,13 +10,13 @@ let TOKENLIST = []
 const CHAINTOKENLIST = [
   {
     //Local Hardhat Test Chain
-    chainId: '0x7A69',
+    chainId: '0x7a69',
     crypto:
     [
       {
         id: 0,
-        name_short: 'Mnemonic',
-        contract_addr: ''
+        name_short: 'MNEM',
+        contract_addr: '0xc4934D5347887dc90775a815DC102ea8f5101038'
       },
     
     ]
@@ -33,8 +33,8 @@ const CHAINTOKENLIST = [
       },
       {
         id: 1,
-        name_short: 'Mnemonic',
-        contract_addr: ''
+        name_short: 'MNEM',
+        contract_addr: '0xc4934D5347887dc90775a815DC102ea8f5101038'
       },
     
     ]
@@ -299,10 +299,10 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
             "id": newId,
             "name": itemName,
             "description": itemDescription,
-            "cryptoNameShort": itemCryptoShort,
-            "contractAddr": itemCryptoContractAddr,
+            "crypto_name_short": itemCryptoShort,
+            "crypto_contract_addr": itemCryptoContractAddr,
             "chainId": itemCryptoChainId,
-            "price_crypto_ezread": itemPriceCryptoEzread,
+            "crypto_price_ezread": itemPriceCryptoEzread,
             "dateCreate": newCreateDate
           }
         )
