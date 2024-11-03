@@ -9,6 +9,9 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
+import { MessageList } from '../components/MessageList'
+import { ApolloProvider } from '@apollo/client';
+import client  from '../components/apollo-client';
 
 export function LogisticScreen({}): JSX.Element {
   // ---------------State variables--------------- 
@@ -22,7 +25,12 @@ export function LogisticScreen({}): JSX.Element {
   });
   return (
   <>
-    <View style={styles.logistic}></View>
+    <View style={styles.logistic}>
+      <ApolloProvider client={client}>
+        <MessageList />
+      </ApolloProvider>
+    </View>
+
   </>
   )
 }
