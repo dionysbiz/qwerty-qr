@@ -176,6 +176,9 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
       case '0xa':
         name = ('OP Mainnet');
       break;
+      case '0x7a69':
+        name = 'Hardhat Network';
+      break;
       default:
         name = ('UNKNOWN');
     }
