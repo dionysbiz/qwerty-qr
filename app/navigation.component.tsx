@@ -254,18 +254,7 @@ export const AppNavigator = (): JSX.Element => {
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name='CameraScreen' component={CameraScreen}/>
-          <Link href={"/scanner"} asChild>
-            <Pressable disabled={!isPermissionGranted}>
-              <Text
-                style={[
-                  styles.buttonStyle,
-                  { opacity: !isPermissionGranted ? 0.5 : 1 },
-                ]}
-              >
-                Scan Code
-              </Text>
-            </Pressable>
-          </Link>
+          
 
         </Stack.Navigator>
     )
