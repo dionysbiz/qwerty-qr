@@ -176,6 +176,7 @@ export const DAPPView = (_props: DAPPViewProps) => {
       },
     });
 
+
     const from = ethereum?.getSelectedAddress();
 
     const params = [from, msgParams];
@@ -185,6 +186,40 @@ export const DAPPView = (_props: DAPPViewProps) => {
     const resp = await ethereum?.request({ method, params });
     console.debug('sign response', resp);
     setResponse(resp);
+  };
+
+  const getPermission = async () => {
+
+    try {
+      const result = await ethereum?.request({
+        method: 'wallet_getPermissions',
+        origin: 'original',
+        params: [
+        ]
+      });
+      console.log('wallet_getPermissions', result);
+      return result;
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  };
+
+  const requestPermission = async () => {
+
+    try {
+      const result = await ethereum?.request({
+        method: 'wallet_requestPermissions',
+        params: [
+          {
+            eth_accounts: {}
+          }
+        ]
+      });
+      console.log('wallet_requestPermissions', result);
+      return result;
+    } catch (e) {
+      console.log('ERROR', e);
+    }
   };
 
   const sendTransaction = async () => {
@@ -285,8 +320,18 @@ export const DAPPView = (_props: DAPPViewProps) => {
       )}
 
     <Avatar size='small' source={require('../public/static/icons/MetaMask_Fox_connected.png')} />
+      <TouchableOpacity
+        style={[styles.button, styles.removeButton]}
+        onPress={() => {
+          sdk?.terminate();
+          setResponse('');
+        }}
+      >
+        <Text style={styles.buttonText}>Terminate</Text>
+      </TouchableOpacity>
       {connected ? (
         <>
+          
           <Button title={'Request Accounts'} onPress={connect} />
           <Button title="Sign" onPress={sign} />
           <Button title="testEthers" onPress={testEthers} />
@@ -295,6 +340,8 @@ export const DAPPView = (_props: DAPPViewProps) => {
           <Button title="Add chain" onPress={exampleRequest} />
           */}
           <Button title="Batch Calls" onPress={batch} />
+          <Button title={'getPermission'} onPress={getPermission} />
+          <Button title={'requestPermission'} onPress={requestPermission} />
           
           <Text style={textStyle}>
             {/* 
@@ -311,15 +358,7 @@ export const DAPPView = (_props: DAPPViewProps) => {
         <></>
       )}
 
-      <TouchableOpacity
-        style={[styles.button, styles.removeButton]}
-        onPress={() => {
-          sdk?.terminate();
-          setResponse('');
-        }}
-      >
-        <Text style={styles.buttonText}>Terminate</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 };
