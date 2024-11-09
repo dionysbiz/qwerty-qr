@@ -23,7 +23,7 @@ import { NavigationContainer,  } from '@react-navigation/native';
 import { useSDK } from '@metamask/sdk-react';
 import { encrypt } from 'eciesjs';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import packageJSON from '../../package.json';
+import packageJSON from '../../../package.json';
 import PropTypes from 'prop-types';
 import { TopNavbar } from '../layouts/dashboard/TopNavbar';
 import { PaymentView } from '../views/PaymentView';
