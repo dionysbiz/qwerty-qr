@@ -11,7 +11,7 @@ var braintree = require('braintree-web/client');
 //import braintree from "braintree-web-drop-in"
 
 
-import axios from 'axios';
+//import axios from 'axios';
 
 import {
   Button,
@@ -283,11 +283,11 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     console.log("verifiedCard")
     setReady4transaction(false)
     getDvInfo()
-    axios.get("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
-      console.log(responseFromBraintree.data);
+    fetch("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
+      console.log(responseFromBraintree.json);
       braintree.create(
         {
-          authorization: responseFromBraintree.data,
+          authorization: responseFromBraintree.json,
         },
         function (err: any, client: any) {
           console.log(client)
@@ -332,9 +332,14 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
               };
               // Send response.creditCards[0].nonce to your server
               //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/verifyCreditCard",
-              axios.post("http://10.0.2.2:8088/verifyCreditCard",
-                null,
-                header
+              fetch("http://10.0.2.2:8088/verifyCreditCard",{
+                headers: {
+                  'Content-Type': 'application/json',
+                  'nonce': response.creditCards[0].nonce,
+                  'amount': '1',
+                  'currency': 'GBP'
+                }
+              }
               ).then((response2FromBraintree) => {
                 setLoadingDisable(false)
                 setReady4transaction(true)
@@ -372,13 +377,13 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     
   }
 
-  const createTransaction = async (amount:String, fiatCurrency:String) => {
+  const createTransaction = async (amount:string, fiatCurrency:string) => {
     setLoadingDisable(true)
     console.log("Ready2Call getClientTokenRequest");
 
     //axios.get("http://10.0.2.2:8088/getClientTokenRequest").then((responseFromBraintree) => {
-      axios.get("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
-      console.log(responseFromBraintree.data);
+      fetch("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
+      console.log(responseFromBraintree.json);
       
       /*
       braintreeDropin({
@@ -404,7 +409,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       
       braintree.create(
         {
-          authorization: responseFromBraintree.data,
+          authorization: responseFromBraintree.json,
           //container: '#dropin-container', 
           //paypal: {
             //flow: 'checkout',
@@ -462,9 +467,22 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
 
               // Send response.creditCards[0].nonce to your server
               //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/createTransaction",
-              axios.post("http://10.0.2.2:8088/createTransaction",
-                dvInfo2send,
-                header
+              fetch("http://10.0.2.2:8088/createTransaction", {
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                  'nonce': response.creditCards[0].nonce,
+                  'amount': amount,
+                  'currency': 'GBP'
+                },
+                body: JSON.stringify({
+                  jsonrpc: '2.0',
+                  method: 'eth_gasPrice',
+                  params: [],
+                  id: 1
+                }),
+              }
               ).then((response2FromBraintree) => {
                 console.log("Response of createTransaction")
                 console.log(response2FromBraintree);

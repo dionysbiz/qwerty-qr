@@ -10,7 +10,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useSDK } from '@metamask/sdk-react';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import axios from 'axios';
+//import axios from 'axios';
 
 export type Props = {
   navigation: any,
@@ -199,35 +199,44 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
 
   // ---------------onPress Handler---------------
   
-  function promiseHttpGasPrice () {
-    axios.post('https://mainnet.infura.io/v3/139a076676e1447094981c79ac0b6acc', {
-      jsonrpc: '2.0',
-      method: 'eth_gasPrice',
-      params: [],
-      id: 1
-    }, {
+  async function promiseHttpGasPrice () {
+    const responseGasPrice = await fetch('https://mainnet.infura.io/v3/139a076676e1447094981c79ac0b6acc', {
+      method: 'POST',
+      body: JSON.stringify({  
+        jsonrpc: '2.0',
+        method: 'eth_gasPrice',
+        params: [],
+        id: 1
+      }), 
       headers: {
         'Content-Type': 'application/json'
       }}
-    ).then((responseGasPrice) => {
-      setGasPrice(Number(responseGasPrice.data.result)/1000000000)
-      setMinTxFeeEther(gasPrice*65000*0.000000001)
-      setMinTxFeeGwei(gasPrice*65000)
-      setMinTxFeeUSD(minTxFeeEther*2649.68)
-    })
+    )
+    const json = await responseGasPrice.json();
+
+    
+    setGasPrice(Number(json.result)/1000000000)
+    setMinTxFeeEther(gasPrice*65000*0.000000001)
+    setMinTxFeeGwei(gasPrice*65000)
+    setMinTxFeeUSD(minTxFeeEther*2649.68)
+
     
     return "";
   }
 
-  function getHttpEthRate () {
-    axios.get('https://api.diadata.org/v1/assetQuotation/Ethereum/0x0000000000000000000000000000000000000000',
-    {
-      headers: {
-        'Content-Type': 'application/json'
-      }}
-    ).then((responseGasPrice) => {
-      setEthRate(Number(responseGasPrice.data.Price))
-    })
+  async function getHttpEthRate () {
+    const responseEthPrice = await fetch('https://api.diadata.org/v1/assetQuotation/Ethereum/0x0000000000000000000000000000000000000000',
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }}
+      )
+  
+    const json = await responseEthPrice.json();
+  
+    setEthRate(Number(json.Price))
+    
+
     
     return "";
   }
