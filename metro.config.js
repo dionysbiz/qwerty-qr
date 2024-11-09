@@ -1,19 +1,14 @@
-//const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
-
 // Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require('expo/metro-config');
 
+/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
 config.resolver.extraNodeModules = {
-  ...require("node-libs-expo"),
+    ...require('node-libs-expo'),
+    crypto: require.resolve('crypto-browserify'),
 };
 
-config.transformer.getTransformOptions = async () => ({
-  transform: {
-    experimentalImportSupport: false,
-    inlineRequires: true,
-  },
-});
+config.resolver.unstable_enablePackageExports= true,
 
 module.exports = config;

@@ -37,6 +37,7 @@ LogBox.ignoreLogs([
 // hence usage of a global variable.
 let canOpenLink = true;
 
+/*
 const WithSDKConfig = ({ children }: { children: React.ReactNode }) => {
   const {
     socketServer,
@@ -90,6 +91,7 @@ const WithSDKConfig = ({ children }: { children: React.ReactNode }) => {
     </MetaMaskProvider>
   );
 };
+*/
 
 export default function App() {
   const handleAppState = (appState: AppStateStatus) => {
@@ -109,7 +111,16 @@ export default function App() {
     console.log('Navigation container ready!');
   };
 
+  const {
+    socketServer,
+    infuraAPIKey,
+    useDeeplink,
+    debug,
+    checkInstallationImmediately,
+  } = useSDKConfig();
+
   return (
+    /*
     <SDKConfigProvider
       //initialSocketServer={COMM_SERVER_URL}
       //initialInfuraKey={INFURA_API_KEY}
@@ -123,5 +134,54 @@ export default function App() {
         </ApplicationProvider>
       </WithSDKConfig>
     </SDKConfigProvider>
+    */
+   
+    <MetaMaskProvider
+      debug={debug}
+      sdkOptions={{
+        communicationServerUrl: socketServer,
+        enableAnalytics: true,
+        infuraAPIKey,
+        readonlyRPCMap: {
+          '0x539': process.env.NEXT_PUBLIC_PROVIDER_RPCURL ?? '',
+        },
+        logging: {
+          developerMode: true,
+          plaintext: true,
+        },
+        openDeeplink: (link: string, _target?: string) => {
+          console.debug(`App::openDeepLink() ${link}`);
+          if (canOpenLink) {
+            Linking.openURL(link);
+          } else {
+            console.debug(
+              'useBlockchainProiver::openDeepLink app is not active - skip link',
+              link,
+            );
+          }
+        },
+        timer: BackgroundTimer,
+        useDeeplink,
+        checkInstallationImmediately,
+        storage: {
+          enabled: true,
+          //storageManager: new StorageManagerRN()
+        },
+        dappMetadata: {
+          name: 'rnmetamask2',
+          url: 'http://www.nono.com',
+        },
+        i18nOptions: {
+          enabled: true,
+        },
+      }}
+    >
+      <IconRegistry icons={EvaIconsPack} />
+        <ApplicationProvider {...eva} theme={eva.dark}>
+          <AppNavigator/>
+        </ApplicationProvider>
+    </MetaMaskProvider>
+   
+   
   );
 }
