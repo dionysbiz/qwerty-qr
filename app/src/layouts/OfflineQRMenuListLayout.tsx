@@ -10,6 +10,8 @@ import {
   plainRenderer,
 } from 'react-native-qr-svg';
 import { useSDK } from '@metamask/sdk-react';
+import Web3 from 'web3';
+
 
 interface IListItem {
   id: string,
@@ -91,6 +93,13 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       }>
       QR Code
     </Button>
+    <Button 
+      size='tiny' 
+      disabled={false} 
+      onPress={ () => sendTransaction(item)
+      }>
+      TESTCALL
+    </Button>
     </>
   );
 
@@ -98,6 +107,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     <Icon
       {...props}
       name='archive-outline'
+      
     />
   );
 
@@ -155,14 +165,34 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       item.dateCreate,
       new Date(),
     )
+    console.log("------Item to be insert to local DB------")
+    console.log(item.id)
+    console.log(itemList.length)
+    console.log(item.name)
+    console.log(item.description)
+    console.log(item.crypto_name_short)
+    console.log(item.crypto_contract_addr)
+    console.log(chainId)
+    console.log(item.crypto_price_ezread)
+    console.log(item.dateCreate)
+    
     setItemDetailModalVisible(false)
   }
 
   const onClickShowQRCodebutton = (item) => {
-    item.scanAction="transfer"
-    item.toWalletAddr=account
+    let extractedItem = {
+      scanAction: "transfer",
+      name: item.name,
+      crypto_name_short: item.crypto_name_short,
+      crypto_contract_addr: item.crypto_contract_addr,
+      crypto_chain_id: item.crypto_chain_id,
+      crypto_price_ezread: item.crypto_price_ezread,
+      toWalletAddr: account
+    }
+    
+    
     //item.erc20ContractAddr="contract address"
-    let content = JSON.stringify(item)
+    let content = JSON.stringify(extractedItem)
     // TO deserialize: JSON.parse(item)
     setCurrentQRItemJSON(content)
     setQRCodeModalVisible(true)
@@ -257,6 +287,119 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     let allItem = realm.objects('OfflineQRItem');
     realm.delete(allItem)
   }
+
+  //--------------------------------------------
+
+  const eth_estimationGas = async (to, value) => {
+    console.log('to', to);
+    console.log('value', value);
+    try {
+      const result = await ethereum?.request({
+        method: 'eth_estimateGas',
+        params: [
+          {
+            from: account,
+            to: to,
+            value: value
+          }
+        ]
+      });
+      console.log('eth_estimationGas', result);
+      return result;
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  }
+
+  const eth_gasPrice = async () => {
+    try {
+      const result = await ethereum?.request({
+        method: 'eth_gasPrice',
+        params: [
+        ]
+      });
+      console.log('eth_gasPrice', result);
+      return result;
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  }
+
+  //kubectl port-forward hardhatnetwork-dev-ddddc4fff-6bpfz -n hardhatnetwork-dev 8545:8545
+  const sendTransaction = async (qr:any) => {
+    try {
+      qr.toWalletAddr=account
+      console.log('qr', qr);
+        const valueWei = Web3.utils.toWei(qr.crypto_price_ezread, 'ether')
+        const valueGwei = Web3.utils.fromWei(valueWei, 'gwei')
+        const valueGweiHex = '0x'+Number(valueGwei).toString(16)
+        const gas = await eth_estimationGas(qr.toWalletAddr, '0x1')
+        const gasPrice = await eth_gasPrice()
+        console.log('value', valueWei);
+        console.log('valueHex', valueGweiHex);
+        console.log('gas', gas);
+        console.log('gasPrice', gasPrice);
+
+        
+        const result = await ethereum?.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              to: '0x9B40d31fdc6Ef74D999AFDdeF151f8E864391cfF',
+              from: account,
+              //gas: gas,
+              //data: '0x',
+              value: valueWei,
+              //gasPrice: gasPrice
+            }
+          ]
+        });
+        console.log('eth_sendTransaction', result);
+        
+        //setResponse(result);
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  };
+
+  const sendERC20Transaction = async (qr:any) => {
+    try {
+      qr.toWalletAddr=account
+      console.log('qr', qr);
+        const valueWei = Web3.utils.toWei(qr.crypto_price_ezread, 'ether')
+        const valueGwei = Web3.utils.fromWei(valueWei, 'gwei')
+        const valueGweiHex = '0x'+Number(valueGwei).toString(16)
+        const gas = await eth_estimationGas(qr.toWalletAddr, '0x1')
+        const gasPrice = await eth_gasPrice()
+        console.log('value', valueWei);
+        console.log('valueHex', valueGweiHex);
+        console.log('gas', gas);
+        console.log('gasPrice', gasPrice);
+
+        const contract = new Web3.
+        eth.Contract(abi, qr.contractAddress);
+
+        
+        const result = await ethereum?.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              to: '0x9B40d31fdc6Ef74D999AFDdeF151f8E864391cfF',
+              from: account,
+              gas: gas,
+              data: '0x',
+              value: valueWei,
+              gasPrice: gasPrice
+            }
+          ]
+        });
+        console.log('eth_sendTransaction', result);
+        
+        //setResponse(result);
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+  };
 
   useEffect(() => {
     
