@@ -21,7 +21,7 @@ import { ApplicationProvider, Layout } from '@ui-kitten/components';
 import { useSDK } from '@metamask/sdk-react';
 import { encrypt } from 'eciesjs';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import packageJSON from '../../package.json';
+import packageJSON from '../../../package.json';
 import PropTypes from 'prop-types';
 import { TopNavbar } from '../layouts/dashboard/TopNavbar';
 import { DAPPView } from '../views/DappView';
