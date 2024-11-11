@@ -9,6 +9,8 @@ import { ServiceStatus } from '@metamask/sdk';
 import { ethers } from 'ethers';
 import { PaypalCheckout } from '../components/PaypalCheckout';
 
+import { triggerTransactionv2, checkWalletExist } from '../utils/ethUtil';
+
 export interface DAPPViewProps {}
 
 const createStyles = ({ connected }: { connected: boolean }) => {
@@ -222,6 +224,24 @@ export const DAPPView = (_props: DAPPViewProps) => {
     }
   };
 
+  const onClickBuy = async() => {
+    // Sending Ethereum to an address
+    //acc = window.ethereum.request({ method: 'eth_requestAccounts' });
+    //acc.then((result) => {
+      //handleToggle()
+      //handleUnderTx(true)
+
+      const contractAddr="0xc4934D5347887dc90775a815DC102ea8f5101038"
+      const currencyName_short="MNEM"
+      const toAddr="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+      const amountTransfer="15"
+      const handleOnSuccess=null
+      const handleOnFail=null
+      
+      triggerTransactionv2(chainId, contractAddr, currencyName_short, account, toAddr, amountTransfer, handleOnSuccess, handleOnFail)
+    //});
+  };
+
   const sendTransaction = async () => {
     const to = '0x0000000000000000000000000000000000000000';
     const transactionParameters = {
@@ -333,8 +353,11 @@ export const DAPPView = (_props: DAPPViewProps) => {
         <>
           
           <Button title={'Request Accounts'} onPress={connect} />
+          <Button title="Web3 Check Wallet" onPress={checkWalletExist} />
+          <Button title="ERC20 On Click Buy" onPress={onClickBuy} />
           <Button title="Sign" onPress={sign} />
           <Button title="testEthers" onPress={testEthers} />
+          
           <Button title="Send transaction" onPress={sendTransaction} />
           {/* 
           <Button title="Add chain" onPress={exampleRequest} />
