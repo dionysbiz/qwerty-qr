@@ -388,7 +388,10 @@ export const AppNavigator = (): JSX.Element => {
                 </>
                 : 
                 <>
-                  <Link href={"/scanner"} asChild>
+                  <Link href={{
+                    pathname: "/scanner",
+                    params: { walletAddr: account }
+                    }} asChild>
                     <Pressable disabled={!isPermissionGranted}>
                       <Ionicons name="qr-code-outline" size={25} color="grey" />
                     </Pressable>
