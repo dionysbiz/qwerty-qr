@@ -9,6 +9,7 @@ import {Alert,
   StatusBar,
   Text,
   useColorScheme,
+  Platform,
   View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -24,7 +25,7 @@ import { OnlineShopItemScreen } from './src/screens/OnlineShopItemScreen';
 import { OfflineQRMenuScreen } from './src/screens/OfflineQRMenuScreen';
 import { ReceivedOrdersScreen } from './src/screens/ReceivedOrdersScreen';
 import { PaymentScreen } from './src/screens/PaymentScreen';
-import { CameraScreen } from './src/screens/CameraScreen';
+//import { CameraScreen } from './src/screens/CameraScreen';
 
 import { TopNavbar } from './src/layouts/dashboard/TopNavbar';
 
@@ -157,6 +158,10 @@ export const AppNavigator = (): JSX.Element => {
       fontSize: 20,
       textAlign: "center",
     },
+    statusBarBackground: {
+      height: (Platform.OS === 'ios') ? 18 : 30, //this is just to test if the platform is iOS to give it a height of 18, else, no height (Android apps have their own status bar)
+      backgroundColor: "grey",
+    }
   });
 
   // ---------------Visual Items--------------- 
@@ -243,12 +248,13 @@ export const AppNavigator = (): JSX.Element => {
           <Stack.Screen name='ShopManagementScreen' component={ShopManagementScreen}/>
           <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
           <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
-          <Stack.Screen name='ReveivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
+          <Stack.Screen name='ReceivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
 
         </Stack.Navigator>
     )
   }
 
+  /*
   const CameraStack = () => {
     const Stack = createNativeStackNavigator();
     return (
@@ -259,6 +265,7 @@ export const AppNavigator = (): JSX.Element => {
         </Stack.Navigator>
     )
   }
+  */
 
   const askForPCameraPermission = () => {
 
@@ -348,12 +355,13 @@ export const AppNavigator = (): JSX.Element => {
   }
   
   return( 
-    <SafeAreaView style={{ flex: 1 }}>
+    <>
+    <View style={[styles.statusBarBackground || {}]}>
+    </View>
       
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
+    <SafeAreaView style={{ flex: 1 }}>
+         
+      
       <TopNavbar 
         onOpenSidebar={() => setNavbarOpen(true)} 
         onConnect={connectWithMetamask}
@@ -403,12 +411,13 @@ export const AppNavigator = (): JSX.Element => {
           )}
           tabBar={renderTabBar}
         >
-
+        {/* 
         <CurvedBottomBarExpo.Screen
           name="home"
           position="LEFT" 
           component={ () => <MetamaskSDKDemoScreen /> }
         />
+        */}
         <CurvedBottomBarExpo.Screen
           name="metamasksdkdemo"
           position="LEFT"
@@ -419,12 +428,13 @@ export const AppNavigator = (): JSX.Element => {
           component={ ShopManagementStack }
           position="RIGHT"
         />
+        {/* 
         <CurvedBottomBarExpo.Screen
           name="logistic"
           position="RIGHT"
           component={() => <LogisticScreen />}
         />
-
+        */}
           
         </CurvedBottomBarExpo.Navigator>
         
@@ -432,7 +442,7 @@ export const AppNavigator = (): JSX.Element => {
       
       
     </SafeAreaView>
-  
+    </>
   )
   //<Screen name='Home' component={HomeScreen}/>
   //<Screen name='DemoScreen' component={DemoScreen}/>

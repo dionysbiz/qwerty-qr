@@ -33,6 +33,7 @@ export function ShopManagementScreen({}): JSX.Element {
       selectedIndex={selectedIndex}
       onSelect={index => setSelectedIndex(index)}
     >
+      {/*
       <Tab title='Shop Items'>
         <Layout style={styles.tabContainer}>
           <Text category='h5'>
@@ -40,13 +41,14 @@ USERS
           </Text>
         </Layout>
       </Tab>
+      */}
       <Tab title='QR Menu'>
         <OfflineQRMenuListLayout/>
       </Tab>
-      <Tab title='Reveived Orders'>
+      <Tab title='Received Orders'>
         <Layout style={styles.tabContainer}>
           <Text category='h5'>
-TRANSACTIONS
+          Received Orders
           </Text>
         </Layout>
       </Tab>
