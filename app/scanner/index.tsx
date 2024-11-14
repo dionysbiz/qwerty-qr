@@ -260,8 +260,8 @@ export default function Home(navigation) {
         <View style={styles.loading}>
           <Spinner />
           <Text>Processing..</Text>
-          <Text>The screen will back & forward a few times</Text>
           <Text>Please wait until confirmation from Metamask</Text>
+          <Text>The screen may go back & forward a few times</Text>
         </View>
       </Modal>
       

@@ -37,6 +37,8 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
+import { Spinner } from '@ui-kitten/components';
+
 
 import { Link, Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
@@ -61,6 +63,7 @@ export const AppNavigator = (): JSX.Element => {
 
 
   const isPermissionGranted = Boolean(permission?.granted);
+  
 
   const {
     sdk,
@@ -72,7 +75,7 @@ export const AppNavigator = (): JSX.Element => {
     readOnlyCalls,
     connected,
   } = useSDK();
-
+  
   // ---------------Style Sheets---------------
   const backgroundStyle = {
     backgroundColor: Colors.lighter,
@@ -161,7 +164,12 @@ export const AppNavigator = (): JSX.Element => {
     statusBarBackground: {
       height: (Platform.OS === 'ios') ? 18 : 30, //this is just to test if the platform is iOS to give it a height of 18, else, no height (Android apps have their own status bar)
       backgroundColor: "grey",
-    }
+    },
+    loading: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
 
   // ---------------Visual Items--------------- 
@@ -351,8 +359,17 @@ export const AppNavigator = (): JSX.Element => {
   };
 
   if (!sdk) {
-    return <Text>SDK loading</Text>;
-  }
+    return (
+      <View style={styles.loading}>
+          <Spinner />
+          <Text>Preparing for chicken..</Text>
+        </View>
+    );
+  } else {
+    //sdk?.terminate();
+  } 
+
+  
   
   return( 
     <>
