@@ -248,10 +248,7 @@ export async function triggerTransaction(chainName, contractAddr, paymentTokenNa
             // gas: web3.utils.toHex(42000),
             chainId: targetChainId,
             data: ''
-        })
-        .on('error', (error, receipt) => {
-            console.log('error')
-            console.log(error)
+        })gasFeeHexror)
             onFail(receipt)
         })
         .then((receipt) => {
@@ -331,7 +328,7 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
   // Get the gas price
   web3.eth.getGasPrice().then(async (result) => {
     
-    console.log('GasFee in Wei by web3.eth.getGasPrice() result')
+    console.log('GasFee in Wei from web3.eth.getGasPrice() result')
     console.log(result)
 
     let gasFeeHex
@@ -351,14 +348,15 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
 
     switch (String(chainId)) {
       case '0x1':
-        console.log("after web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')")  
-        gasFee = web3.utils.fromWei(result, 'wei')
+        //console.log("after web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')")  
+        console.log("Gas price in gwei from web3.eth.getGasPrice()")  
+        gasFee = Math.round(web3.utils.fromWei(result, 'gwei'))
         //gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')))
-        console.log(gasFee)
-        const gasbigIntValue = BigInt(gasFee);
-        console.log(gasbigIntValue)
+        //console.log(gasFee)
+        //const gasbigIntValue = BigInt(gasFee);
+        //console.log(gasbigIntValue)
         // Convert to hexadecimal string and pad to 16 characters (64 bits)
-        gasFeeHex = gasbigIntValue.toString(16).padStart(16, '0');
+        gasFeeHex = gasFee.toString(16).padStart(16, '0');
     
         // Add the '0x' prefix
         gasFeeHex=`0x${gasFeeHex}`
@@ -439,8 +437,8 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
         .send({
             from: fromAddr,
             // value: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),
-            gas: gasFeeHex,
-            // gas: web3.utils.toHex(42000),
+            gasPrice: gasFeeHex,
+            gas: web3.utils.toHex(65000),
             chainId: targetChainId,
             data: ''
         })
