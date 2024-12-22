@@ -12,7 +12,6 @@ import {
 import { useSDK } from '@metamask/sdk-react';
 import Web3 from 'web3';
 
-
 interface IListItem {
   id: string,
   name: string;
@@ -20,7 +19,7 @@ interface IListItem {
   crypto_name_short: string,
   crypto_contract_addr: string,
   crypto_chain_id: string,
-  crypto_price_ezread: string, // short form without 0s
+  crypto_price_ezread: string, // short form without 0x
   dateCreate?: Date,
   dateUpdate?: Date,
 }
@@ -83,6 +82,17 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     connected,
   } = useSDK();
 
+  useEffect(() => {
+    const realm = new Realm({ schema: [OfflineQRItemSchema] });
+    loadOfflineQRItem2List()
+    // Cleanup function to close Realm
+    return () => {
+      if (realm && !realm.isClosed) {
+        realm.close();
+      }
+    };
+  })
+
   //
   const renderItemAccessory = (item): React.ReactElement => (
     <>
@@ -96,9 +106,16 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     <Button 
       size='tiny' 
       disabled={false} 
-      onPress={ () => sendTransaction(item)
+      onPress={ () => testOrder(item)
       }>
-      TESTCALL
+      TEST Order
+    </Button>
+    <Button 
+      size='tiny' 
+      disabled={false} 
+      onPress={ () => deleteOfflineQRItem(item)
+      }>
+      Delete
     </Button>
     </>
   );
@@ -215,6 +232,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
 
       for (let p of realmItemList) {
         let item:IListItem = {
+          id: String(p.id), 
           name: String(p.name), 
           description: String(p.description),
           crypto_name_short: String((p.crypto_name_short)),
@@ -264,21 +282,17 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     });
   }
   
-  const deleteOfflineQRItem = (
-    id: number,
-    onScreenIdx: number,
-    name: string,
-    description: string,
-    crypto_name_short: string,
-    crypto_contract_addr: string,
-    crypto_chain_id: string,
-    crypto_price_ezread: string,
-    dateCreate: Date,
-    dateUpdate: Date,
-  ) => {
+  const deleteOfflineQRItem = (item) => {
     let realm = new Realm({schema: [OfflineQRItemSchema]});
-    let item = realm.create('OfflineQRItem', {id: 1});
-    realm.delete(item)
+    //let item = realm.create('OfflineQRItem', {id: 1});
+    //realm.delete(item)
+    console.log(item)
+    realm.write(() => {
+      const taskToDelete = realm.objectForPrimaryKey('OfflineQRItem', item.id);
+      if (taskToDelete) {
+        realm.delete(taskToDelete);
+      }
+    });
   }
   
   const deleteAllOfflineQRItem = (
@@ -324,6 +338,33 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       console.log('ERROR', e);
     }
   }
+
+  const testOrder = async (qrData:any) => {
+    /* QR item content
+        scanAction: "transfer",
+        name: item.name,
+        crypto_name_short: item.crypto_name_short,
+        crypto_contract_addr: item.crypto_contract_addr,
+        crypto_chain_id: item.crypto_chain_id,
+        crypto_price_ezread: item.crypto_price_ezread,
+        toWalletAddr: account
+
+        fromWallet<----add
+    */
+    try {
+      console.log(qrData.id)
+      console.log(qrData.name)
+      console.log(qrData.crypto_name_short)
+      console.log(qrData.crypto_contract_addr)
+      //console.log(item.chainId)
+      console.log(qrData.crypto_price_ezread)
+      //console.log(item.dateCreate)
+    
+    } catch (e) {
+      console.log('ERROR', e);
+    }
+    
+  };
 
   //kubectl port-forward hardhatnetwork-dev-ddddc4fff-6bpfz -n hardhatnetwork-dev 8545:8545
   const sendTransaction = async (qr:any) => {
@@ -401,10 +442,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
-    
-    loadOfflineQRItem2List()
-  })
+  
 
   const SIZE = 170;
 
