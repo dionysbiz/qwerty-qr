@@ -9,9 +9,11 @@ import {
   useColorScheme,
 } from 'react-native';
 import { OfflineQRMenuListLayout } from "../layouts/OfflineQRMenuListLayout"
+import { ReceivedQROrderListLayout } from "../layouts/ReceivedQROrderListLayout"
 import { Layout, Text, TabView } from '@ui-kitten/components';
 import { Icon, IconElement, Tab, TabBar, TabBarProps } from '@ui-kitten/components';
-
+import { ApolloProvider } from '@apollo/client';
+import client  from '../components/apollo-client';
 
 export function ShopManagementScreen({}): JSX.Element {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -46,11 +48,16 @@ USERS
         <OfflineQRMenuListLayout/>
       </Tab>
       <Tab title='Received Orders'>
+        {/*
         <Layout style={styles.tabContainer}>
           <Text category='h5'>
           Received Orders
           </Text>
         </Layout>
+        */}
+        <ApolloProvider client={client}>
+          <ReceivedQROrderListLayout/>
+        </ApolloProvider>
       </Tab>
     </TabView>
     </>

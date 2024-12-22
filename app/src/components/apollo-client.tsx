@@ -5,15 +5,19 @@ import { createClient } from 'graphql-ws';
 
 import { getMainDefinition } from '@apollo/client/utilities';
 
+import { url } from '../properties/urls_local'
+
 // HTTP link for regular queries and mutations
+
+//kubectl port-forward service/kafkaconsumergraphqlsub-dev 8080:8080 -n kafkaconsumergraphqlsub-dev
 const httpLink = new HttpLink({
-  uri: 'http://10.0.2.2:8080/graphql', // Your GraphQL server's HTTP URL
+  uri: url.graphql, // Your GraphQL server's HTTP URL
 });
 
 // WebSocket link for subscriptions
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://10.0.2.2:8080/subscriptions',
+  url: url.ws_graphqlSubscription,
 }));
 
 
