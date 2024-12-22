@@ -34,6 +34,7 @@ import { TopNavbar } from './src/layouts/dashboard/TopNavbar';
 import { CurvedBottomBarExpo } from 'react-native-curved-bottom-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesomeIcon from '@expo/vector-icons/FontAwesome5';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -191,8 +192,9 @@ export const AppNavigator = (): JSX.Element => {
         break;
       case 'metamasksdkdemo':
           icon = 'globe-outline';
+          //<>{/*<Fontisto name="money-symbol" size={25} color={routeName === selectedTab ? 'black' : 'gray'} /> */}</>
           return (
-            <Fontisto name="money-symbol" size={25} color={routeName === selectedTab ? 'black' : 'gray'} />
+            <FontAwesomeIcon name="comments-dollar" size={25} color={routeName === selectedTab ? 'black' : 'gray'} />
           );
           break;
       case 'shop':
