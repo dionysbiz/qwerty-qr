@@ -18,6 +18,9 @@ import { useEffect, useRef, useState } from "react";
 import { useSDK } from '@metamask/sdk-react';
 import Web3 from 'web3';
 import { triggerTransactionv2 } from '../src/utils/ethUtil';
+import { putQrorder, scanQROrders } from '../src/utils/awsClient';
+
+var hash = require('object-hash');
 
 export type Props = {
   navigation: any,
@@ -102,17 +105,43 @@ export default function Home(navigation) {
   const onConfirmTransaction = () => {
     //console.log(account)
     setTimeout(async () => {
-      triggerTransactionv2(
-        qrData.crypto_chain_id, 
-        qrData.crypto_contract_addr, 
-        qrData.crypto_name_short, 
-        walletAddr, 
-        qrData.toWalletAddr, 
-        qrData.crypto_price_ezread, 
-        onTransactionSuccess(),
-        onTransactionFail())
-      setConfirmModalVisible(false)
-      setWaitingModalVisible(true)
+      
+      if (qrData.crypto_price_ezread==='0') {
+        // "order_id, chainId, fromAddr, toAddr, product_name, description, currencyName, product_price, transactionHash",
+        const qrorderItem = {
+            chainId: { S: qrData.crypto_chain_id },
+            itemName: { S: qrData.name},
+            fromAddr: { S: walletAddr },
+            toAddr: { S: qrData.toWalletAddr },
+            cryptoNameShort: {S: qrData.crypto_name_short },
+            cryptoPriceEzread: { S: qrData.crypto_price_ezread },
+            cryptoContractAddr: {S: qrData.crypto_contract_addr },
+            transactionHash: {S: "NA"},
+            createDate: {S: new Date()}
+        }
+        const order_id = hash(qrorderItem)
+        qrorderItem.order_id = {S: order_id}
+        putQrorder(qrorderItem)
+        
+        setConfirmModalVisible(false)
+        setWaitingModalVisible(true)
+        setTimeout(async () => {
+          setWaitingModalVisible(false)
+        }, 300); 
+      } else {
+        triggerTransactionv2(
+          qrData.crypto_chain_id, 
+          qrData.crypto_contract_addr, 
+          qrData.crypto_name_short, 
+          walletAddr, 
+          qrData.toWalletAddr, 
+          qrData.crypto_price_ezread, 
+          onTransactionSuccess(),
+          onTransactionFail())
+        setConfirmModalVisible(false)
+        setWaitingModalVisible(true)
+      }
+      
     }, 500); 
     
     
