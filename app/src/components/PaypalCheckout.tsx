@@ -9,9 +9,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 var braintree = require('braintree-web/client');
 
 //import braintree from "braintree-web-drop-in"
-
-
 //import axios from 'axios';
+import { url } from '../properties/urls_local'
 
 import {
   Button,
@@ -283,7 +282,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     console.log("verifiedCard")
     setReady4transaction(false)
     getDvInfo()
-    fetch("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
+    fetch(url.braintree_getClientTokenRequest).then((responseFromBraintree) => {
       console.log(responseFromBraintree.json);
       braintree.create(
         {
@@ -332,7 +331,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
               };
               // Send response.creditCards[0].nonce to your server
               //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/verifyCreditCard",
-              fetch("http://10.0.2.2:8088/verifyCreditCard",{
+              fetch(url.braintree_verifyCreditCard,{
                 headers: {
                   'Content-Type': 'application/json',
                   'nonce': response.creditCards[0].nonce,
@@ -382,7 +381,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     console.log("Ready2Call getClientTokenRequest");
 
     //axios.get("http://10.0.2.2:8088/getClientTokenRequest").then((responseFromBraintree) => {
-      fetch("http://paypalbraintreeserver-dev.dionys.xyz/getClientTokenRequest").then((responseFromBraintree) => {
+      fetch(url.braintree_getClientTokenRequest).then((responseFromBraintree) => {
       console.log(responseFromBraintree.json);
       
       /*
@@ -467,7 +466,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
 
               // Send response.creditCards[0].nonce to your server
               //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/createTransaction",
-              fetch("http://10.0.2.2:8088/createTransaction", {
+              fetch(url.braintree_createTransaction, {
                 method: 'POST',
                 headers: {
                   Accept: 'application/json',
