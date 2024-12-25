@@ -12,12 +12,14 @@ import { url } from '../properties/urls_local'
 //kubectl port-forward service/kafkaconsumergraphqlsub-dev 8080:8080 -n kafkaconsumergraphqlsub-dev
 const httpLink = new HttpLink({
   uri: url.graphql, // Your GraphQL server's HTTP URL
+  //uri: 'http://10.0.2.2:8080/graphql',
 });
 
 // WebSocket link for subscriptions
 
 const wsLink = new GraphQLWsLink(createClient({
   url: url.ws_graphqlSubscription,
+  //url: 'ws://10.0.2.2:8080/subscriptions',
 }));
 
 
