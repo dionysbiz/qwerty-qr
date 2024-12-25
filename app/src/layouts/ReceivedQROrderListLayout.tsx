@@ -1,20 +1,12 @@
 import React from 'react';
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
 import { StyleSheet, Alert, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
-import { OfflineItemEditCard } from '../components/OfflineItemEditCard'
-import {
-  QrCodeSvg,
-  plainRenderer,
-} from 'react-native-qr-svg';
 import { useSDK } from '@metamask/sdk-react';
-import Web3 from 'web3';
 import { scanQROrders } from '../../src/utils/awsClient';
-import { urls } from '../properties/urls'
-//import { Consumer, ConsumerSubscribeTopics, EachBatchPayload, Kafka, EachMessagePayload } from 'kafkajs'
-
+import { QROrderViewCard } from '../components/QROrderViewCard'
 import { useSubscription } from '@apollo/client';
 import { MESSAGE_SUBSCRIPTION } from '../../src/utils/graphql/subscriptions'
 
@@ -38,11 +30,27 @@ let data = new Array(16).fill({
 */
 
 const QROrderSchema = {
-  name: 'OfflineQRItem',
+  name: 'QROrderItem',
   primaryKey: 'id',
   properties: {
     id: 'string',
     onScreenIdx: 'int',
+    name:  'string',
+    crypto_name_short: 'string',
+    crypto_contract_addr: 'string',
+    crypto_chain_id: 'string',
+    crypto_price_ezread: 'string', // short form without 0s
+    dateCreate: 'date',
+    fromAddr: 'string',
+    txHash: 'string'
+  }
+};
+
+const ArchivedQROrderSchema = {
+  name: 'ArchivedQROrderItem',
+  primaryKey: 'id',
+  properties: {
+    id: 'string',
     name:  'string',
     crypto_name_short: 'string',
     crypto_contract_addr: 'string',
@@ -89,33 +97,18 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
+  const [archivedItemList, setArchivedItemItemList] = useState<IListItem[] | []>([]);;
   const [orderDetailModalVisible, setOrderDetailModalVisible] = useState(false);
+  const [deleteOrderConfirmModalVisible, setDeleteOrderConfirmModalVisible] = useState(false);
+  const [deleteArchivedOrderConfirmModalVisible, setDeleteArchivedOrderConfirmModalVisible] = useState(false);
   const [currentViewingItem, setCurrentViewingItem] = useState(itemNull);
+  const [currentEditingOrder, setCurrentEditingOrder] = useState(itemNull);
 
   const [topic, setTopic] = useState('testtopic');
   const { data, error } = useSubscription(MESSAGE_SUBSCRIPTION, {
     variables: { topic }, // Pass the topic parameter
   });
-
-
-  useEffect(() => {
-    
-    if (data) {
-      // Append new message to the list when received
-      console.log(data)
-      //setMessages((prevMessages) => [...prevMessages, data.messageStream]);
-      addKafkaOrderItem2Realm(data.messageStream)
-    }
-    loadOrderItem2List()
-  }, [data]);
-
-  if (error) {
-    console.error(error.message)
-    console.error(error.stack)
-    return <Text>Error: {error.message}</Text>;
-  }
-
-  
+  //const [messages, setMessages] = useState([]);
 
   const {
     sdk,
@@ -127,13 +120,47 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     readOnlyCalls,
     connected,
   } = useSDK();
-  const topicName = 'qrItemOrder-'+account
-  setTopic(topicName)
+
+  useEffect(() => {
+    //const realm = new Realm({ schema: [QROrderSchema,ArchivedQROrderSchema] });
+    console.log("useEffect QR Order")
+
+    const topicName = 'qrItemOrder-'+account
+    console.log('Listen to kafka topic: '+topicName)
+    setTopic(topicName)
+    
+    if (data) {
+      // Append new message to the list when received
+      console.log(data)
+      //setMessages((prevMessages) => [...prevMessages, data.messageStream]);
+      addKafkaOrderItem2Realm(data.messageStream)
+    }
+    loadOrderItem2List()
+    setTimeout(function (){loadArchivedOrderItem2List()}, 1000)
+
+  }, [data]);
+
+  if (error) {
+    console.error(error.message)
+    console.error(error.stack)
+    //return <Text>Error: {error.message}</Text>;
+  }
 
   const renderItemAccessory = (item): React.ReactElement => (
     <>
     <Button 
       size='tiny' 
+      style={styles.accessoriesButton}
+      disabled={false} 
+      onPress={ () => {
+        setCurrentEditingOrder(item)
+        setDeleteOrderConfirmModalVisible(true)
+      }}>
+      Delete
+    </Button>
+    <Button 
+      size='tiny' 
+      style={styles.accessoriesButton}
       disabled={false} 
       onPress={ () => null
       }>
@@ -141,10 +168,34 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     </Button>
     <Button 
       size='tiny' 
+      style={styles.accessoriesButton}
+      disabled={false} 
+      onPress={ () => saveQROrder((item))
+      }>
+      Save
+    </Button>
+    </>
+  );
+
+  const renderArchivedOrderAccessory = (item): React.ReactElement => (
+    <>
+    <Button 
+      size='tiny' 
+      style={styles.accessoriesButton}
+      disabled={false} 
+      onPress={ () => {
+        setCurrentEditingOrder(item)
+        setDeleteArchivedOrderConfirmModalVisible(true)
+      }}>
+      Delete
+    </Button>
+    <Button 
+      size='tiny' 
+      style={styles.accessoriesButton}
       disabled={false} 
       onPress={ () => null
       }>
-      Save
+      Refund
     </Button>
     </>
   );
@@ -163,10 +214,20 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
 
   const renderItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
-      title={`${item.itemName} `}
-      description={`${item.createDate} `}
+      title={`${item.id} `}
+      description={`${item.name} `}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderItemAccessory(item)}
+      onPress={() => onClickItemOntheList(item)}
+    />
+  );
+
+  const renderArchivedItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
+    <ListItem
+      title={`${item.id} `}
+      description={`${item.name} `}
+      accessoryLeft={renderItemIcon}
+      accessoryRight={renderArchivedOrderAccessory(item)}
       onPress={() => onClickItemOntheList(item)}
     />
   );
@@ -174,12 +235,31 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
   const onClickItemOntheList = (item:IListItem) => {
     console.log(item.order_id)
     setCurrentViewingItem(item)
+    setCurrentEditingOrder(item)
     setOrderDetailModalVisible(true)
   }
 
   const onClickBackGround = () => {
     
     setOrderDetailModalVisible(false)
+  }
+
+  const addTestOrder = () => {
+    var precision = 100; // 2 decimals
+    var randomnum = Math.floor(Math.random() * (10 * precision - 1 * precision) + 1 * precision) / (1*precision);
+    console.log(randomnum)
+    createQROrderItem(
+      Date.parse(new Date()).toString(),
+      itemList.length,//?
+      "testOrder"+itemList.length,
+      "MNEM",
+      "0xc4934D5347887dc90775a815DC102ea8f5101038",
+      "0x1",
+      randomnum.toString(),
+      new Date(),
+      account,
+      "0xae9b0835a25d35d3dcf614666ea40437964c41cd1a31645a7a42b6673ecbdefc"
+    )
   }
 
   const addKafkaOrderItem2Realm = async(kafkaItem) => {
@@ -237,11 +317,47 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         txHash: txHash
       });
     });
+    loadOrderItem2List()
+    //if (realm && !realm.isClosed) {
+      //realm.close();
+    //}
+  }
+
+  const createArchivedQROrderItem = (
+    id: string,
+    name: string,
+    crypto_name_short: string,
+    crypto_contract_addr: string,
+    crypto_chain_id: string,
+    crypto_price_ezread: string,
+    dateCreate: Date,
+    fromAddr: string,
+    txHash: string,
+  ) => {
+    let realm = new Realm({schema: [ArchivedQROrderSchema]});
+    //write to local Database
+    realm.write(() => {
+      let item = realm.create('ArchivedQROrderItem', {
+        id: id,
+        name: name,
+        crypto_name_short: crypto_name_short,
+        crypto_contract_addr: crypto_contract_addr,
+        crypto_chain_id: crypto_chain_id,
+        crypto_price_ezread: crypto_price_ezread, // short form without 0s
+        dateCreate: dateCreate,
+        fromAddr: fromAddr,
+        txHash: txHash
+      });
+    });
+    if (realm && !realm.isClosed) {
+      realm.close();
+      console.log("Realm Close")
+    }
   }
 
   const loadOrderItem2List = async() => {
     
-    let realm = new Realm({schema: [QROrderSchema]});
+    //let realm = new Realm({schema: [QROrderSchema]});
     let data = [{name: 'FirstItemname', description: 'DescripTioN'}]
     data=[]
 
@@ -268,16 +384,60 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
 
       setItemList(data)
       realm.close();
+      console.log("Realm Close After load QR orders")
     })
+
+    //if (realm && !realm.isClosed) {
+      //realm.close();
+    //}
   }
 
+  const loadArchivedOrderItem2List = async() => {
+    
+    //let realm = new Realm({schema: [ArchivedQROrderSchema]});
+    let data = [{name: 'FirstItemname', description: 'DescripTioN'}]
+    data=[]
+
+    Realm.open({schema: [ArchivedQROrderSchema]})
+    .then(realm => {
+      // ... use the realm instance to read and modify data
+      let realmItemList = realm.objects('ArchivedQROrderItem')
+      realmItemList = realmItemList!.sorted("dateCreate", false)
+
+      for (let p of realmItemList) {
+        let item:IListItem = {
+          id: String(p.id),
+          name: String(p.name), 
+          crypto_name_short: String((p.crypto_name_short)),
+          crypto_contract_addr: String((p.crypto_contract_addr)),
+          crypto_chain_id: String((p.crypto_chain_id)),
+          crypto_price_ezread: String((p.crypto_price_ezread)),
+          dateCreate: new Date(p.dateCreate),
+          fromAddr: String(p.fromAddr),
+          txHash: String(p.txHash),
+        }
+        data.push(item)
+      }
+
+      setArchivedItemItemList(data)
+      realm.close();
+      console.log("Realm Close")
+    })
+    /*
+    if (realm && !realm.isClosed) {
+      realm.close();
+    }
+    */
+  }
+
+  /*
   const loadOrderItem2ListFromAWS = async() => {
     
     const jsonStr = await scanQROrders(account)
     //const receivedQRorderListJSON = JSON.parse(jsonStr)
     console.log(jsonStr)
     let receivedQRorderList = []
-    /*
+    
     order_id: '',
     onScreenIdx: 0,
     toAddr: null,
@@ -288,7 +448,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     createDate: null,
     fromAddr: null,
     
-    */
+    
     await jsonStr.forEach((item) => {
       console.log(item)
       const order = {
@@ -308,10 +468,69 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     //console.log(receivedQRorderList)
     setItemList(receivedQRorderList)
   }
+  */
+
+  const deleteQROrderItem = (item) => {
+    let realm = new Realm({schema: [QROrderSchema]});
+    //let item = realm.create('OfflineQRItem', {id: 1});
+    //realm.delete(item)
+    console.log("Ready to delete Order:")
+    console.log(item)
+    realm.write(() => {
+      const taskToDelete = realm.objectForPrimaryKey('QROrderItem', item.id);
+      if (taskToDelete) {
+        realm.delete(taskToDelete);
+      }
+    });
+    if (realm && !realm.isClosed) {
+      realm.close();
+      console.log("Realm Close After delete")
+    }
+    setCurrentEditingOrder(itemNull)
+    setDeleteOrderConfirmModalVisible(false)
+    loadOrderItem2List()
+  }
+
+  const deleteArchivedQROrderItem = (item) => {
+    let realm = new Realm({schema: [ArchivedQROrderSchema]});
+    //let item = realm.create('OfflineQRItem', {id: 1});
+    //realm.delete(item)
+    console.log(item)
+    realm.write(() => {
+      const taskToDelete = realm.objectForPrimaryKey('ArchivedQROrderItem', item.id);
+      if (taskToDelete) {
+        realm.delete(taskToDelete);
+      }
+    });
+    if (realm && !realm.isClosed) {
+      realm.close();
+      console.log("Realm Close")
+    }
+    setCurrentEditingOrder(itemNull)
+    setDeleteArchivedOrderConfirmModalVisible(false)
+    loadArchivedOrderItem2List()
+  }
+
+  const saveQROrder = (item) => {
+    createArchivedQROrderItem(
+      item.id,
+      item.name,
+      item.crypto_name_short,
+      item.crypto_contract_addr,
+      item.crypto_chain_id,
+      item.crypto_price_ezread,
+      item.dateCreate,
+      item.fromAddr,
+      item.txHash,
+    )
+    deleteQROrderItem(item)
+    loadOrderItem2List()
+    setTimeout(function (){loadArchivedOrderItem2List()}, 1000)
+  }
   
 
   //--------------------------------------------
-
+  /*
   const eth_estimationGas = async (to, value) => {
     console.log('to', to);
     console.log('value', value);
@@ -348,39 +567,86 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
   }
 
   const SIZE = 170;
+  */
 
   return (
+    
     <View style={styles.container}>
-      
+      <Modal
+        visible={orderDetailModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setOrderDetailModalVisible(false)}
+      >
+        <QROrderViewCard 
+          item={currentEditingOrder} 
+          deleteOrderHandler={deleteQROrderItem}
+        />
+      </Modal>
+      <Modal
+        visible={deleteOrderConfirmModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setDeleteOrderConfirmModalVisible(false)}
+      >
+        <Text category='h5'>
+          Delete an order. You sure?
+        </Text>
+        <Button
+          onPress={ () => deleteQROrderItem(currentEditingOrder)}>
+          DELETE
+        </Button>
+      </Modal>
+      <Modal
+        visible={deleteArchivedOrderConfirmModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setDeleteArchivedOrderConfirmModalVisible(false)}
+      >
+        <Text category='h5'>
+          Delete an archived order. You sure?
+        </Text>
+        <Button
+          onPress={ () => deleteArchivedQROrderItem(currentEditingOrder)}>
+          DELETE
+        </Button>
+      </Modal>
       <Layout>
         <Layout
           style={styles.rowContainer}
           level='1'
         >
-       </Layout> 
-
-        <Layout
-          style={styles.rowContainer}
-          level='1'
-        >
-          <Text category='h5'>
+          <Text category='h5' style={styles.title}>
             Received Orders
           </Text>
           <Button
             style={styles.addItemButton}
             appearance='ghost'
             accessoryLeft={renderAddItemIcon}
-            onPress={ () => null}
+            onPress={ () => addTestOrder()}
           />
+          
         </Layout>
-
         <List
           style={styles.container}
           data={itemList}
           renderItem={renderItem}
         />
-      </Layout>
 
+        <Layout
+          style={styles.rowContainer}
+          level='1'
+        >
+          <Text category='h5' style={styles.title}>
+            Archived Orders
+          </Text>
+          
+        </Layout>
+
+        <List
+          style={styles.container}
+          data={archivedItemList}
+          renderItem={renderArchivedItem}
+        />
+      </Layout>
+      
     </View>
     
     
@@ -403,26 +669,10 @@ const styles = StyleSheet.create({
   addItemButton: {
     margin: 2,
   },
-  //QR code related
-  qrroot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  accessoriesButton: {
+    margin: 1,
   },
-  qrcontent: {
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qrbox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qricon: {
-    fontSize: 20,
-  },
-  qr: {
-    padding: 15,
-  },
+  title: {
+    margin: 10,
+  }
 });
