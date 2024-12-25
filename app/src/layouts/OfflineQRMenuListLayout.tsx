@@ -30,6 +30,40 @@ let data = new Array(16).fill({
 });
 */
 
+const QROrderSchema = {
+  name: 'QROrderItem',
+  primaryKey: 'id',
+  properties: {
+    id: 'string',
+    onScreenIdx: 'int',
+    name:  'string',
+    crypto_name_short: 'string',
+    crypto_contract_addr: 'string',
+    crypto_chain_id: 'string',
+    crypto_price_ezread: 'string', // short form without 0s
+    dateCreate: 'date',
+    fromAddr: 'string',
+    txHash: 'string'
+  }
+};
+
+const ArchivedQROrderSchema = {
+  name: 'ArchivedQROrderItem',
+  primaryKey: 'id',
+  properties: {
+    id: 'string',
+    onScreenIdx: 'int',
+    name:  'string',
+    crypto_name_short: 'string',
+    crypto_contract_addr: 'string',
+    crypto_chain_id: 'string',
+    crypto_price_ezread: 'string', // short form without 0s
+    dateCreate: 'date',
+    fromAddr: 'string',
+    txHash: 'string'
+  }
+};
+
 const OfflineQRItemSchema = {
   name: 'OfflineQRItem',
   primaryKey: 'id',
@@ -65,6 +99,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
   const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
+  const [deleteItemConfirmModalVisible, setDeleteItemConfirmModalVisible] = useState(false);
   const [qRCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
   const [currentQRItemJSON, setCurrentQRItemJSON] = useState("");
@@ -83,21 +118,26 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   } = useSDK();
 
   useEffect(() => {
-    const realm = new Realm({ schema: [OfflineQRItemSchema] });
-    loadOfflineQRItem2List()
+    //const realm = new Realm({ schema: [OfflineQRItemSchema] });
+    console.log("useEffect Menu LIst")
+    setTimeout(function (){loadOfflineQRItem2List()}, 2000)
+    
     // Cleanup function to close Realm
+    /*
     return () => {
       if (realm && !realm.isClosed) {
         realm.close();
       }
     };
-  })
+    */
+  }, [])
 
   //
   const renderItemAccessory = (item): React.ReactElement => (
     <>
     <Button 
       size='tiny' 
+      style={styles.accessoriesButton}
       disabled={false} 
       onPress={ () => onClickShowQRCodebutton(item)
       }>
@@ -105,6 +145,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     </Button>
     <Button 
       size='tiny' 
+      style={styles.accessoriesButton}
       disabled={false} 
       onPress={ () => testOrder(item)
       }>
@@ -112,9 +153,12 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     </Button>
     <Button 
       size='tiny' 
+      style={styles.accessoriesButton}
       disabled={false} 
-      onPress={ () => deleteOfflineQRItem(item)
-      }>
+      onPress={ () => {
+        setCurrentEditingItem(item)
+        setDeleteItemConfirmModalVisible(true)
+      }}>
       Delete
     </Button>
     </>
@@ -221,7 +265,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   }
 
   const loadOfflineQRItem2List = () => {
-    let realm = new Realm({schema: [OfflineQRItemSchema]});
+    //let realm = new Realm({schema: [OfflineQRItemSchema]});
     let data = [{name: 'FirstItemname', description: 'DescripTioN'}]
     data=[]
 
@@ -246,10 +290,14 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       }
 
       setItemList(data)
-      realm.close();
+      if (!realm.isClosed) {
+        realm.close();
+        console.log("Realm instance has been closed.");
+    }
     })
     
     //realm.close();
+    console.log("Realm Close at QR Menu")
   }
   
   const createUpdateOfflineQRItem = (
@@ -280,6 +328,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
         dateUpdate: dateUpdate,
       });
     });
+    loadOfflineQRItem2List()
   }
   
   const deleteOfflineQRItem = (item) => {
@@ -293,6 +342,9 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
         realm.delete(taskToDelete);
       }
     });
+    setCurrentEditingItem(itemNull)
+    setDeleteItemConfirmModalVisible(false)
+    loadOfflineQRItem2List()
   }
   
   const deleteAllOfflineQRItem = (
@@ -462,6 +514,20 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       </Modal>
 
       <Modal
+        visible={deleteItemConfirmModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setDeleteItemConfirmModalVisible(false)}
+      >
+        <Text>
+          Confirm to delete?
+        </Text>
+        <Button
+        onPress={ () => deleteOfflineQRItem(currentEditingItem)}>
+          DELETE
+        </Button>
+      </Modal>
+
+      <Modal
         visible={qRCodeModalVisible}
         backdropStyle={styles.backdrop}
         onBackdropPress={() => setQRCodeModalVisible(false)}
@@ -494,7 +560,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
           style={styles.rowContainer}
           level='1'
         >
-          <Text category='h5'>
+          <Text category='h5' style={styles.title}>
             QR Menu Items
           </Text>
           <Button
@@ -533,6 +599,12 @@ const styles = StyleSheet.create({
   },
   addItemButton: {
     margin: 2,
+  },
+  accessoriesButton: {
+    margin: 1,
+  },
+  title: {
+    margin: 10,
   },
   //QR code related
   qrroot: {
