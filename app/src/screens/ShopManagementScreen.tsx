@@ -48,16 +48,11 @@ USERS
         <OfflineQRMenuListLayout/>
       </Tab>
       <Tab title='Received Orders'>
-        {/*
-        <Layout style={styles.tabContainer}>
-          <Text category='h5'>
-          Received Orders
-          </Text>
-        </Layout>
-        */}
+
         <ApolloProvider client={client}>
           <ReceivedQROrderListLayout/>
         </ApolloProvider>
+
       </Tab>
     </TabView>
     </>
