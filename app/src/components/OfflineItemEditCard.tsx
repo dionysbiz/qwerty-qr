@@ -68,11 +68,10 @@ const CHAINTOKENLIST = [
 
 export type Props = {
   item: any,
-  createItemHandler: any ,
   closeHandler: any ,
 };
 
-export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }): React.ReactElement => {
+export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactElement => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   //const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
@@ -86,12 +85,13 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
   const [itemCryptoShort, setItemCryptoShort] = useState(item.crypto_name_short);
   const [itemCryptoContractAddr, setItemCryptoContractAddr] = useState(item.crypto_contract_addr);
   const [itemCryptoChainId, setItemCryptoChainId] = useState(item.crypto_chain_id);
-  const [itemPriceCryptoEzread, setItemPriceCryptoEzread] = useState(item.price_crypto_ezread);
+  const [itemPriceCryptoEzread, setItemPriceCryptoEzread] = useState(item.crypto_price_ezread);
   const [itemDateCreate, setItemDateCreate] = useState(item.dateCreate);
   const [itemDateUpdate, setItemDateUpdate] = useState(item.dateUpdate);
 
-  const [tokenShortDisplayValue, setTokenShortDisplayValue] = useState("Select token");
+  const [tokenShortDisplayValue, setTokenShortDisplayValue] = useState(item.crypto_name_short);
   const [saveBtnDisable, setSaveBtnDisable] = useState(true);
+  const [saveBtnText, setSaveBtnText] = useState("Create");
 
   //const [placementIndex, setPlacementIndex] = React.useState(new IndexPath(1, 0));
   //const placement = placements[placementIndex.row];
@@ -176,6 +176,12 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
   
 
   useEffect(() => {
+    if (itemId===""){
+      setSaveBtnText("Create")
+    } else {
+      setSaveBtnText("Update")
+    }
+    
     /*
     if (itemCryptoShort==='Select Token') {
       setItemCryptoShort(null)
@@ -307,7 +313,7 @@ export const OfflineItemEditCard = ({ item, createItemHandler, saveItemHandler }
           }
         )
       }}>
-        Save
+        {saveBtnText}
       </Button>
     </Card>
     </Layout>
