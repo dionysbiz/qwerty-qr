@@ -30,40 +30,6 @@ let data = new Array(16).fill({
 });
 */
 
-const QROrderSchema = {
-  name: 'QROrderItem',
-  primaryKey: 'id',
-  properties: {
-    id: 'string',
-    onScreenIdx: 'int',
-    name:  'string',
-    crypto_name_short: 'string',
-    crypto_contract_addr: 'string',
-    crypto_chain_id: 'string',
-    crypto_price_ezread: 'string', // short form without 0s
-    dateCreate: 'date',
-    fromAddr: 'string',
-    txHash: 'string'
-  }
-};
-
-const ArchivedQROrderSchema = {
-  name: 'ArchivedQROrderItem',
-  primaryKey: 'id',
-  properties: {
-    id: 'string',
-    onScreenIdx: 'int',
-    name:  'string',
-    crypto_name_short: 'string',
-    crypto_contract_addr: 'string',
-    crypto_chain_id: 'string',
-    crypto_price_ezread: 'string', // short form without 0s
-    dateCreate: 'date',
-    fromAddr: 'string',
-    txHash: 'string'
-  }
-};
-
 const OfflineQRItemSchema = {
   name: 'OfflineQRItem',
   primaryKey: 'id',
@@ -103,6 +69,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   const [qRCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
   const [currentQRItemJSON, setCurrentQRItemJSON] = useState("");
+  const [qRItemMode, setQRItemMode] = useState("create");
 
 
 
@@ -178,8 +145,8 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
 
   const renderItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
-      title={`${item.name} ${index + 1}`}
-      description={`${item.description} ${index + 1}`}
+      title={`${item.name} `}
+      description={ `${item.description.length > 20 ? (item.description.substring(0,20)+"..") : item.description } `}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderItemAccessory(item)}
       onPress={() => onClickItemOntheList(item)}
@@ -204,12 +171,14 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     }
     setCurrentEditingItem(item)
     setItemDetailModalVisible(true)
+    setQRItemMode("create")
   }
 
   const onClickItemOntheList = (item:IListItem) => {
     console.log(item.id)
     setCurrentEditingItem(item)
     setItemDetailModalVisible(true)
+    setQRItemMode("edit")
   }
 
   const onClickSavebutton = (item) => {
@@ -241,6 +210,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
   }
 
   const onClickShowQRCodebutton = (item) => {
+    setCurrentEditingItem(item)
     let extractedItem = {
       scanAction: "transfer",
       name: item.name,
@@ -313,21 +283,41 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
     dateUpdate: Date,
   ) => {
     let realm = new Realm({schema: [OfflineQRItemSchema]});
-    //write to local Database
-    realm.write(() => {
-      let item = realm.create('OfflineQRItem', {
-        id: id,
-        onScreenIdx: onScreenIdx,
-        name:  name,
-        description: description,
-        crypto_name_short: crypto_name_short,
-        crypto_contract_addr: crypto_contract_addr,
-        crypto_chain_id: crypto_chain_id,
-        crypto_price_ezread: crypto_price_ezread, // short form without 0s
-        dateCreate: dateCreate,
-        dateUpdate: dateUpdate,
+    
+    console.log("Item to be created/update")
+    console.log(id)
+    if (qRItemMode==="create") {
+      realm.write(() => {
+        let item = realm.create('OfflineQRItem', {
+          id: id,
+          onScreenIdx: onScreenIdx,
+          name:  name,
+          description: description,
+          crypto_name_short: crypto_name_short,
+          crypto_contract_addr: crypto_contract_addr,
+          crypto_chain_id: crypto_chain_id,
+          crypto_price_ezread: crypto_price_ezread, // short form without 0s
+          dateCreate: dateCreate,
+          dateUpdate: dateUpdate,
+        });
       });
-    });
+    } else {
+      const objectToUpdate = realm.objectForPrimaryKey("OfflineQRItem", id);
+      realm.write(() => {
+        objectToUpdate.onScreenIdx= onScreenIdx
+        objectToUpdate.name=  name
+        objectToUpdate.description= description
+        objectToUpdate.crypto_name_short= crypto_name_short
+        objectToUpdate.crypto_contract_addr= crypto_contract_addr
+        objectToUpdate.crypto_chain_id= crypto_chain_id
+        objectToUpdate.crypto_price_ezread= crypto_price_ezread 
+        objectToUpdate.dateCreate= dateCreate
+        objectToUpdate.dateUpdate= dateUpdate
+      });
+    }
+    
+    //write to local Database
+    
     loadOfflineQRItem2List()
   }
   
@@ -508,7 +498,6 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       >
         <OfflineItemEditCard 
           item={currentEditingItem} 
-          createItemHandler={createUpdateOfflineQRItem}
           saveItemHandler={onClickSavebutton}
         />
       </Modal>
@@ -541,8 +530,12 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
               frameSize={SIZE}
             />
             <Text category='h5'>
-              Message
+              {currentEditingItem.name}
             </Text> 
+            <Text>Crypto: {currentEditingItem.crypto_name_short}</Text>
+            <Text>Price: {currentEditingItem.crypto_price_ezread}</Text>
+            <Text>Description: {currentEditingItem.description}</Text>
+            <Text>  </Text>
             <Button 
               size='large' 
               disabled={false} 
