@@ -99,6 +99,8 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
   const [archivedItemList, setArchivedItemItemList] = useState<IListItem[] | []>([]);;
   const [orderDetailModalVisible, setOrderDetailModalVisible] = useState(false);
+  const [archivedOrderDetailModalVisible, setArchivedOrderDetailModalVisible] = useState(false);
+
   const [deleteOrderConfirmModalVisible, setDeleteOrderConfirmModalVisible] = useState(false);
   const [deleteArchivedOrderConfirmModalVisible, setDeleteArchivedOrderConfirmModalVisible] = useState(false);
   const [currentViewingItem, setCurrentViewingItem] = useState(itemNull);
@@ -228,7 +230,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
       description={`${item.name} `}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderArchivedOrderAccessory(item)}
-      onPress={() => onClickItemOntheList(item)}
+      onPress={() => onClickArchivedOrderOntheList(item)}
     />
   );
 
@@ -239,8 +241,15 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     setOrderDetailModalVisible(true)
   }
 
+  const onClickArchivedOrderOntheList = (item:IListItem) => {
+    console.log(item.order_id)
+    setCurrentViewingItem(item)
+    setCurrentEditingOrder(item)
+    setArchivedOrderDetailModalVisible(true)
+  }
+
   const onClickBackGround = () => {
-    
+    setArchivedOrderDetailModalVisible(false)
     setOrderDetailModalVisible(false)
   }
 
@@ -488,6 +497,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     }
     setCurrentEditingOrder(itemNull)
     setDeleteOrderConfirmModalVisible(false)
+    setOrderDetailModalVisible(false)
     loadOrderItem2List()
   }
 
@@ -508,6 +518,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
     }
     setCurrentEditingOrder(itemNull)
     setDeleteArchivedOrderConfirmModalVisible(false)
+    setArchivedOrderDetailModalVisible(false)
     loadArchivedOrderItem2List()
   }
 
@@ -583,6 +594,16 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         />
       </Modal>
       <Modal
+        visible={archivedOrderDetailModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setArchivedOrderDetailModalVisible(false)}
+      >
+        <QROrderViewCard 
+          item={currentEditingOrder} 
+          deleteOrderHandler={deleteArchivedQROrderItem}
+        />
+      </Modal>
+      <Modal
         visible={deleteOrderConfirmModalVisible}
         backdropStyle={styles.backdrop}
         onBackdropPress={() => setDeleteOrderConfirmModalVisible(false)}
@@ -595,6 +616,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
           DELETE
         </Button>
       </Modal>
+
       <Modal
         visible={deleteArchivedOrderConfirmModalVisible}
         backdropStyle={styles.backdrop}

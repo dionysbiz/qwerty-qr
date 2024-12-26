@@ -81,9 +81,12 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
   const [itemDateCreate, setItemDateCreate] = useState(item.dateCreate);
   const [itemDateUpdate, setItemDateUpdate] = useState(item.dateUpdate);
   const [urlBlockScan, setUrlBlockScan] = useState("");
+  const [chainName, setChainName] = useState("")
 
   const [tokenShortDisplayValue, setTokenShortDisplayValue] = useState("Select token");
   const [saveBtnDisable, setSaveBtnDisable] = useState(true);
+  const [visibleDelete, setVisibleDelete] = useState(true);
+  const [visibleConfirmDelete, setVisibleConfirmDelete] = useState(false);
 
   //const [placementIndex, setPlacementIndex] = React.useState(new IndexPath(1, 0));
   //const placement = placements[placementIndex.row];
@@ -136,12 +139,15 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
     switch (itemCryptoChainId) {
       case '0x1':
         setUrlBlockScan("https://etherscan.io/")
+        setChainName("Ethereum Mainnet")
         break;
       case '0xa4b1': //AR
-        setUrlBlockScan("https://etherscan.io/")
+        setUrlBlockScan("https://arbiscan.io/")
+        setChainName("Arbitrum")
         break;
       case '0xa': //OP
-      setUrlBlockScan("https://optimistic.etherscan.io/")
+        setUrlBlockScan("https://optimistic.etherscan.io/")
+        setChainName("OP Mainnet")
         break;
       default:
         setUrlBlockScan("")
@@ -158,8 +164,9 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
       <Text>Name: {itemName}</Text>
       <Text>Crypto: {itemCryptoShort}</Text>
       <Text>Price: {itemPriceCryptoEzread}</Text>
-      <Text>From: ..{itemFromAddr.substring(20)}</Text>
       <Text>  </Text>
+      <Text>From: ..{itemFromAddr.substring(20)}</Text>
+      <Text>BlockChain: {chainName}</Text>
       <Button
         size='small' 
         style={styles.button}
@@ -172,7 +179,32 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
         onPress={ () => Linking.openURL(urlBlockScan+"address/"+itemCryptoContractAddr)}>
         Crypto Contract Address
       </Button>
-      <Text>Chain Id: {itemCryptoChainId}</Text>
+      <Text>  </Text>
+      {visibleDelete && (<Button
+        size='small' 
+        appearance='ghost'
+        status='danger'
+        style={styles.button}
+        onPress={ () => {
+          setVisibleDelete(false)
+          setVisibleConfirmDelete(true)
+          }}>
+        DELETE Order
+      </Button>)}
+      {visibleConfirmDelete && (<Button
+        size='small' 
+        status='danger'
+        style={styles.button}
+        onPress={ () => {
+          setVisibleDelete(true)
+          setVisibleConfirmDelete(false)
+          deleteOrderHandler(item)
+        }}>
+        CONFIRM DELETE
+      </Button>)}
+      
+      
+      
       {/*
       
       <Text>{itemDateCreate}</Text>
