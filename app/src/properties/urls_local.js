@@ -6,4 +6,6 @@ export const url = {
   braintree_verifyCreditCard: 'http://10.0.2.2:8088/verifyCreditCard',
   braintree_getClientTokenRequest: 'http://10.0.2.2:8088/getClientTokenRequest',
   braintree_createTransaction: 'http://10.0.2.2:8088/createTransaction',
+  // Remarks: this is a direct link to the backend but not through SDCF
+  kafka_publisher: 'http://10.0.2.2:8088/sendMsg2KafkaProducer',
 };
