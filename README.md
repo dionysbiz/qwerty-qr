@@ -54,6 +54,12 @@ Dependency Requirement:
 - expo
 - Android Studio with SDK 33 or above
 
+# How to Build
+```
+eas build -p android --profile preview
+```
+https://www.youtube.com/watch?v=pb6OvvSi8Qk
+
 # Code Example (NOT WORK)
 https://docs.metamask.io/wallet/connect/metamask-sdk/mobile/react-native/ \
 https://github.com/MetaMask/metamask-sdk/tree/main/packages/examples/expo-demo

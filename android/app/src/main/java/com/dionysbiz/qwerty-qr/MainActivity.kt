@@ -1,4 +1,4 @@
-package com.ram4444.metamaskrnexpo
+package com.dionysbiz.qwertyqr
 
 import android.os.Build
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package com.ram4444.metamaskrnexpo
+package com.dionysbiz.qwertyqr
 
 import android.app.Application
 import android.content.res.Configuration

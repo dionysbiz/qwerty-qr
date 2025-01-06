@@ -80,7 +80,7 @@ const WithSDKConfig = ({ children }: { children: React.ReactNode }) => {
           storageManager: new StorageManagerRN()
         },
         dappMetadata: {
-          name: 'rnmetamask2',
+          name: 'qwerty-qr',
         },
         i18nOptions: {
           enabled: true,
@@ -168,7 +168,7 @@ export default function App() {
           //storageManager: new StorageManagerRN()
         },
         dappMetadata: {
-          name: 'rnmetamask2',
+          name: 'qwerty-qr',
           url: 'http://www.nono.com',
         },
         i18nOptions: {

@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'metamaskrnexpo'
+rootProject.name = 'qwerty-qr'
 
 dependencyResolutionManagement {
   versionCatalogs {

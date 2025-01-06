@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.ram4444.metamaskrnexpo'
+    namespace 'com.dionysbiz.qwertyqr'
     defaultConfig {
-        applicationId 'com.ram4444.metamaskrnexpo'
+        applicationId 'com.dionysbiz.qwertyqr'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
