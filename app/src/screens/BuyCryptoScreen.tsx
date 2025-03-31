@@ -10,7 +10,22 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useSDK } from '@metamask/sdk-react';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import { url_local } from '../properties/urls_local'
+import { url_dev } from '../properties/urls_dev'
+
+import DeviceInfo from 'react-native-device-info'
+
 //import axios from 'axios';
+
+var url:any = ""
+
+DeviceInfo.isEmulator().then((isEmulator) => {
+  if (isEmulator) {
+    url = url_local;
+  } else {
+    url = url_dev;
+  }
+});
 
 export type Props = {
   navigation: any,
@@ -198,6 +213,14 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
   };
 
   // ---------------onPress Handler---------------
+  const abierc20 = require('../abi/TTK.json');
+  async function sendTestOrder() {
+    //console.log("sendTestOrder")
+    //console.log(url.ws_graphqlSubscription)
+    console.log(abierc20)
+
+
+  }
   
   async function promiseHttpGasPrice () {
     const responseGasPrice = await fetch('https://mainnet.infura.io/v3/139a076676e1447094981c79ac0b6acc', {
@@ -530,6 +553,13 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
       <Layout style={{ flex: 1, alignItems: 'center' }}>
         <Button style={styles.tokenPurchaseRecordBtn}>
           Check your token Purchase Records
+        </Button>
+        <Button style={styles.tokenPurchaseRecordBtn} onPress={() => console.log(chainId)}>
+          Current Chain ID:
+        </Button>
+
+        <Button style={styles.tokenPurchaseRecordBtn} onPress={() => sendTestOrder()}>
+          Send a test order
         </Button>
         
       </Layout>
