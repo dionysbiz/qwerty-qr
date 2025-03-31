@@ -15,12 +15,27 @@ import { ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import { Button, Modal, Layout,  Text, Spinner } from '@ui-kitten/components';
 import { Overlay } from "./Overlay";
 import { useEffect, useRef, useState } from "react";
-import { useSDK } from '@metamask/sdk-react';
-import Web3 from 'web3';
+//import { useSDK } from '@metamask/sdk-react';
+//import Web3 from 'web3';
 import { triggerTransactionv2 } from '../src/utils/ethUtil';
 import { putQrorder, scanQROrders } from '../src/utils/awsClient';
 
-import { url } from '../src/properties/urls_local'
+import { url_local } from '../src/properties/urls_local'
+import { url_dev } from '../src/properties/urls_dev'
+
+import DeviceInfo from 'react-native-device-info'
+
+
+var url:any = ""
+
+DeviceInfo.isEmulator().then((isEmulator) => {
+  if (isEmulator) {
+    url = url_local;
+  } else {
+    url = url_dev;
+  }
+});
+
 
 var hash = require('object-hash');
 
@@ -50,7 +65,7 @@ export default function Home(navigation) {
 
   
   const [qrData, setQrData ] = useState(qrNull);
-
+/*
   const {
     sdk,
     provider: ethereum,
@@ -61,6 +76,7 @@ export default function Home(navigation) {
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
 
   // ---------------Style Sheets---------------
 
@@ -68,6 +84,7 @@ export default function Home(navigation) {
 
   // ---------------onPress Handler---------------
 
+  /*
   const connect = async () => {
     try {
       const accounts = (await sdk?.connect()) as string[];
@@ -77,13 +94,14 @@ export default function Home(navigation) {
       console.log('ERROR', e);
     }
   };
+  */
 
-  const onTransactionSuccess = async(receipt) => {
+  const onTransactionSuccess = async(txHash) => {
     qrLock.current = false;
     setWaitingModalVisible(false)
-    console.log("ON Success after coming back from Metamask")
-    console.log("TxHash:")
-    console.log(receipt.transactionHash)
+    //console.log("ON Success after coming back from Metamask")
+    console.log("TxHash has been returned from Metamask but not yet confirmed:")
+    console.log(txHash)
     // send qrData And receipt to Kafka with topic
     const topicName = 'qrItemOrder-'+qrData.toWalletAddr
     const orderTime = new Date()
@@ -97,15 +115,16 @@ export default function Home(navigation) {
       cryptoNameShort: {S: qrData.crypto_name_short },
       cryptoPriceEzread: { S: qrData.crypto_price_ezread },
       cryptoContractAddr: {S: qrData.crypto_contract_addr },
-      transactionHash: {S: receipt.transactionHash},
+      transactionHash: {S: txHash},
       createDate: {S: orderTime}
-  }
+    }
 
     fetch(url.kafka_publisher, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        topic: topicName
       },
       body: JSON.stringify({
         /* receive side JSONparse
@@ -127,8 +146,8 @@ export default function Home(navigation) {
         crypto_chain_id: qrData.crypto_chain_id,
         crypto_price_ezread: qrData.crypto_price_ezread,
         dateCreate: orderTime,
-        fromAddr: account,
-        txHash: receipt.transactionHash,
+        fromAddr: walletAddr,
+        txHash: txHash,
       }),
     }
     ).then((response) => {
@@ -148,7 +167,7 @@ export default function Home(navigation) {
   }
 
   const onQRScan = async (qrCode) => {
-    await connect()
+    //await connect()
     setQrData(qrCode)
     if(qrCode.scanAction === "transfer") {
       setConfirmModalVisible(true)
@@ -165,7 +184,7 @@ export default function Home(navigation) {
     setTimeout(async () => {
       
       if (qrData.crypto_price_ezread==='0') {
-        
+        const topicName = 'qrItemOrder-'+qrData.toWalletAddr
         // "order_id, chainId, fromAddr, toAddr, product_name, description, currencyName, product_price, transactionHash",
         // Putting order to AWS dynamoDB
         const qrorderItem = {
@@ -189,6 +208,7 @@ export default function Home(navigation) {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            topic: topicName
           },
           body: JSON.stringify({
             /* receive side JSONparse
@@ -210,7 +230,7 @@ export default function Home(navigation) {
             crypto_chain_id: qrData.crypto_chain_id,
             crypto_price_ezread: qrData.crypto_price_ezread,
             dateCreate: new Date(),
-            fromAddr: account,
+            fromAddr: walletAddr,
             txHash: "0x5e5c7a8610d5b420f77f755924264d89694513bded62762de2bd41d967bd5b30",
           }),
         }).then((response) => {
@@ -243,13 +263,14 @@ export default function Home(navigation) {
   }
 
   // ---------------navigate function---------------
+  /*
   const eth_estimationGas = async (to, value) => {
     try {
       const result = await ethereum?.request({
         method: 'eth_estimateGas',
         params: [
           {
-            from: account,
+            from: walletAddr,
             to: to,
             value: value
           }
@@ -275,7 +296,8 @@ export default function Home(navigation) {
       console.log('ERROR', e);
     }
   }
-
+  */
+  /*
   const sendTransaction = async (qr:any) => {
     try {
         const value = Web3.utils.toWei(qr.crypto_price_ezread, 'ether')
@@ -299,12 +321,14 @@ export default function Home(navigation) {
           ]
         });
         console.log('eth_sendTransaction', result);
-        */
+        **
         //setResponse(result);
     } catch (e) {
       console.log('ERROR', e);
     }
   };
+  */
+  
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {

@@ -2,7 +2,8 @@ import Web3 from 'web3';
 //import axios from 'axios';
 import { urls } from '../properties/urls';
 
-const { abi } = require('../abi/ERC777.json');
+const { abierc777 } = require('../abi/ERC777.json');
+const abierc20 = require('../abi/TTK.json');
 const { localChainList } = require('../properties/localChainList');
 
 const App = new Web3()
@@ -80,29 +81,30 @@ export function getChainlistJSON() {
   */
 
 export async function getEtherscanAbi(chainId, contractAddr) {
-    // Query the abi by the follow url as sample
-    // const response = await fetch('https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=0xC1dcBB3E385Ef67f2173A375F63f5F4361C4d2f9&apikey=YourApiKeyToken');
+  // Query the abi by the follow url as sample
+  // const response = await fetch('https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=0xC1dcBB3E385Ef67f2173A375F63f5F4361C4d2f9&apikey=YourApiKeyToken');
+  
+  let apiURL;
+  switch (chainId) {
     
-    let apiURL;
-    switch (chainId) {
-      
-      case '0x1':
-        apiURL = urls.etherscan_mainnet;
-        break;
-      case 'Rinkeby':
-        apiURL = urls.etherscan_rinkeby;
-        break;
-      default:
-        apiURL = urls.etherscan_rinkeby;
-    }
+    case '0x1':
+      apiURL = urls.etherscan_mainnet;
+      break;
+    case 'Rinkeby':
+      apiURL = urls.etherscan_rinkeby;
+      break;
+    default:
+      apiURL = urls.etherscan_rinkeby;
+      return 0
+  }
 
-    const responseEtherscanContract = await fetch(`${apiURL+contractAddr}&apikey=5AECWF2IJ7TIYABD8DVZ6FQR2R15MPRUCV`)
-    const json = await responseEtherscanContract.json();
+  const responseEtherscanContract = await fetch(`${apiURL+contractAddr}&apikey=5AECWF2IJ7TIYABD8DVZ6FQR2R15MPRUCV`)
+  const json = await responseEtherscanContract.json();
 
-    //console.log(json)
+  //console.log(json)
 
-    return json
-      
+  return json
+    
 }
 
 
@@ -268,6 +270,7 @@ export async function triggerTransaction(chainName, contractAddr, paymentTokenNa
 
 export async function triggerTransactionv2(chainId, contractAddr, paymentTokenName, fromAddr, toAddr, amount, onSuccess, onFail) {
   let abiEtherscan;
+  let abiLocal;
   let contract;
   let walletExist=false;
   let targetChainId=chainId
@@ -364,20 +367,34 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
       break;
 
       case 'Rinkeby':
-      // gasFee = web3.utils.toHex(web3.utils.toWei('100', 'gwei'))
-      gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei('188729959600000', 'gwei')))
-      if (paymentTokenName.includes("Tether")) {
-        unit='ether'
-      }
+        // gasFee = web3.utils.toHex(web3.utils.toWei('100', 'gwei'))
+        gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei('188729959600000', 'gwei')))
+        if (paymentTokenName.includes("Tether")) {
+          unit='ether'
+        }
       break;
     
-    default:
-      // gasFee = web3.utils.toHex(web3.utils.toWei('100', 'gwei'))
-      gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei('188729959600000', 'gwei')))
-      if (paymentTokenName.includes("USDT")) {
-        unit='ether'
-      }
+      default:
+        // gasFee = web3.utils.toHex(web3.utils.toWei('100', 'gwei'))
+        /*
+        gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei('188729959600000', 'gwei')))
+        if (paymentTokenName.includes("USDT")) {
+          unit='ether'
+        }*/
+
+        gasFee = Math.round(web3.utils.fromWei(result, 'gwei'))
+        //gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')))
+        //console.log(gasFee)
+        //const gasbigIntValue = BigInt(gasFee);
+        //console.log(gasbigIntValue)
+        // Convert to hexadecimal string and pad to 16 characters (64 bits)
+        gasFeeHex = gasFee.toString(16).padStart(16, '0');
+    
+        // Add the '0x' prefix
+        gasFeeHex=`0x${gasFeeHex}`
+        console.log(gasFeeHex)
     }
+    //console.log(`Test pt1 ${paymentTokenName}`)
     
     let walletCall
     // Trigger Transaction
@@ -419,7 +436,18 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
           //console.log(response.message);
           //console.log(response.result);
           console.log('Query ABI from Etherscan fail, use local ABI file instead');
-          contract = new web3.eth.Contract(abi, contractAddr);
+          /*
+          fetch(abierc20)
+          .then((res) => res.text())
+          .then((text) => {
+            abiLocal = JSON.parse(abierc20);
+          })
+          .catch((e) => console.error(e));
+          console.log("abiLocal",abiLocal);
+          */
+          
+          //console.log("abierc20",abierc20);
+          contract = new web3.eth.Contract(abierc20, contractAddr);
         }
 
         console.log(`Going to send ${amount} ${unit} `)
@@ -442,6 +470,12 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
             chainId: targetChainId,
             data: ''
         })
+        .on('transactionHash', (hash) => {
+          console.log("=======Transaction Hash received but NOT yet confirmed=======")
+          console.log('Transaction Hash:', hash);
+          // You can handle the transaction hash here, e.g., save it or display it to the user
+          onSuccess(hash)
+        })
         .on('error', (error, receipt) => {
             console.log('error')
             console.log(error)
@@ -449,9 +483,9 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
             //onFail(receipt)
         })
         .then((receipt) => {
-            console.log("transfer success")
+            console.log("=======Transfer success=======")
             console.log(receipt)
-            onSuccess(receipt)
+            onSuccess(receipt.transactionHash)
             // processReceipt(receipt, product, currencyName, chain, deliveryType)
         });
 
