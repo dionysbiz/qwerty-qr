@@ -18,7 +18,11 @@ const CHAINTOKENLIST = [
         name_short: 'MNEM',
         contract_addr: '0xc4934D5347887dc90775a815DC102ea8f5101038'
       },
-    
+      {
+        id: 1,
+        name_short: 'TTK',
+        contract_addr: '0x8464135c8F25Da09e49BC8782676a84730C318bC'
+      },
     ]
   },
   {
