@@ -216,8 +216,8 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
 
   const renderItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
-      title={`${item.id} `}
-      description={`${item.name} `}
+      title={`${item.name} `}
+      description={`${item.id} `}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderItemAccessory(item)}
       onPress={() => onClickItemOntheList(item)}
@@ -226,8 +226,8 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
 
   const renderArchivedItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
-      title={`${item.id} `}
-      description={`${item.name} `}
+      title={`${item.name} `}
+      description={`${item.id} `}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderArchivedOrderAccessory(item)}
       onPress={() => onClickArchivedOrderOntheList(item)}
