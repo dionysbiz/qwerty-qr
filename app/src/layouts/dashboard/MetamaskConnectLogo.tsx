@@ -52,6 +52,14 @@ const CHAINLIST = [
     blockExplorerUrls: ['https://optimistic.etherscan.io/'],
     nativeCurrency: { symbol: 'ETH', decimals: 18 },
     rpcUrls: ['https://optimism-rpc.publicnode.com'],
+  },
+  {
+    id: 4,
+    chainId: '0x7a69',
+    chainName: 'Hardhat-dev',
+    blockExplorerUrls: ['https://etherscan.io/'],
+    nativeCurrency: { symbol: 'ETH', decimals: 18 },
+    rpcUrls: ['https://hardhatnetwork-dev.dionys.xyz'],
   }
 ]
 
@@ -104,6 +112,7 @@ const LANGS = [
 export type Props = {
   onConnect: any,
   onAddChain: any,
+  currentChainId: string,
 };
 
 const btnstyle = StyleSheet.create({
@@ -114,7 +123,7 @@ const btnstyle = StyleSheet.create({
 
 
 
-export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain }): React.ReactElement => {
+export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain, currentChainId }): React.ReactElement => {
   const {
     sdk,
     provider: ethereum,
@@ -220,7 +229,7 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain }):
     console.log("handleChainSelect")
     console.log("index",index)
     console.log("chainArr[index.row]",chainArr[index.row])
-    setSelectedIndex(index.row)
+    changeChainIndex(index.row)
     onAddChain(chainArr[index.row])
     toggleChainList()
     setOpen(false);
@@ -231,7 +240,6 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain }):
     setChainListVisible(!chainListVisible);
   };
   
-  
   const renderMenuAction = (): React.ReactElement => (
     <TopNavigationAction
       style={iconstyles.avatar}
@@ -239,6 +247,46 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain }):
       onPress={toggleChainList}
     />
   );
+
+  const changeChainIndex = (chainId): string => {
+    let name
+    let idx = "0"
+    switch (chainId) {
+      case '0x1':
+      name = 'Ethereum Mainnet';
+      idx = "0"
+      break;
+      case '0x3':
+        name = ('Ropsten Testnet');
+      break;
+      case '0x4':
+        name = ('Rinkeby Testnet');
+      break;
+      case '0x5':
+        name = ('Goerli Testnet');
+      case '0x89':
+        name = ('Polygon');
+        idx = "1"
+      break;
+      case '0xa4b1':
+        name = ('Arbitrum');
+        idx = "2"
+      break;
+      case '0xa':
+        name = ('OP Mainnet');
+        idx = "3"
+      break;
+      case '0x7a69':
+        name = ('Hardhat Network');
+        idx = "4"
+      break;
+      default:
+        name = ('UNKNOWN');
+        idx = "0"
+    }
+    setSelectedIndex(idx)
+    return idx
+  };
   
 
   useEffect(() => {
@@ -249,6 +297,8 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain }):
       onChangeLang(LANGS[i].value)
     }
     */
+    console.log("MetamaskConnectedLogo useEffect chainId: ", currentChainId)
+    changeChainIndex(currentChainId)
   })
   
   //onClick={() => handleClose(option.value, index)}
