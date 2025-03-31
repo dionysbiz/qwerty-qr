@@ -1,4 +1,4 @@
-export const url = {
+export const url_local = {
   // kubectl port-forward service/kafkaserver 9092:9092
   host: '10.0.2.2',
   graphql: 'http://10.0.2.2:8080/graphql',
