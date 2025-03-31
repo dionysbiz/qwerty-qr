@@ -60,7 +60,10 @@ export const AppNavigator = (): JSX.Element => {
   const [langPack, setLangPack] = useState(en)
   const [response, setResponse] = useState<unknown>('');
   const [currentChainId, setCurrentChainId] = useState("")
+  const [currentAccount, setCurrentAccount] = useState("")
+  const [currentConnected, setCurrentConnected] = useState(false)
   const [permission, requestPermission] = useCameraPermissions();
+  
 
 
   const isPermissionGranted = Boolean(permission?.granted);
@@ -309,8 +312,12 @@ export const AppNavigator = (): JSX.Element => {
 
   const connectWithMetamask = async () => {
     try {
+      console.log("await sdk?.connect()")
       const accounts = (await sdk?.connect()) as string[];
       console.log('accounts', accounts);
+      setCurrentChainId(chainId)
+      setCurrentAccount(account)
+      setCurrentConnected(true)
     } catch (e) {
       console.log('ERROR', e);
     }
@@ -319,15 +326,16 @@ export const AppNavigator = (): JSX.Element => {
   const addChain = async (chain:any) => {
     try {
       setResponse('');
-      console.log("call addChain")
+      console.log("call addChain going to switch to:")
       console.log("chain",chain)
       console.log("chainId",chain.chainId)
       console.log("chainName",chain.chainName)
       console.log("blockExplorer",chain.blockExplorerUrls)
       console.log("nativeCurrency",chain.nativeCurrency)
       console.log("rpcUrls",chain.rpcUrls)
-      if (chain.chainId==='0x1') {
+      if ((chain.chainId==='0x1') || ( chain.chainId==='0x7a69' )) {
         setResponse('');
+        console.log("chainID is found directly call wallet_switchEthereumChain")
         const result = await ethereum?.request({
           method: 'wallet_switchEthereumChain',
           params: [
@@ -338,7 +346,11 @@ export const AppNavigator = (): JSX.Element => {
         });
         console.log('switchChain', result);
         setResponse(result);
+        setCurrentChainId(chain.chainId)
+        setCurrentAccount(account)
+        setCurrentConnected(true)
       } else {
+        console.log("chainID NOT found need to add the it to METAMASK using wallet_addEthereumChain")
         const result = await ethereum?.request({
           method: 'wallet_addEthereumChain',
           params: [
@@ -353,6 +365,9 @@ export const AppNavigator = (): JSX.Element => {
         });
         console.log('addChain', result);
         setResponse(result);
+        setCurrentChainId(chain.chainId)
+        setCurrentAccount(account)
+        setCurrentConnected(true)
       }
       
     } catch (e) {
@@ -387,6 +402,9 @@ export const AppNavigator = (): JSX.Element => {
         onAddChain={addChain} 
         onChangeLang={handleLangChange} 
         langPack={langPack}
+        useSDKchainID={currentChainId}
+        useSDKConnected={currentConnected}
+        useSDKAccount={currentAccount}
       />
       <NavigationContainer independent={true}>
 

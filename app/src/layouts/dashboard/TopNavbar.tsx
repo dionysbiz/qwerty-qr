@@ -1,4 +1,4 @@
-import React,{ useState } from 'react';
+import React,{ useState, useEffect } from 'react';
 import {
   Avatar,
   AnimationConfig,
@@ -31,11 +31,15 @@ export type Props = {
   onConnect: any,
   onAddChain: any,
   onChangeLang: any,
-  langPack: any
+  langPack: any,
+  useSDKchainID: string,
+  useSDKConnected: any,
+  useSDKAccount: string
 };
 
-export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain, onChangeLang, langPack}): React.ReactElement => {
+export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain, onChangeLang, langPack, useSDKchainID, useSDKConnected, useSDKAccount}): React.ReactElement => {
   
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -46,6 +50,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
     readOnlyCalls,
     connected,
   } = useSDK();
+  */
 
   const MetamaskConnectedIcon = (props): React.ReactElement => (
     <Avatar 
@@ -144,7 +149,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
   );
 
   const renderRightActions2 = (): React.ReactElement => (
-    <MetamaskConnectLogo onConnect={onConnect} onAddChain={onAddChain} />
+    <MetamaskConnectLogo onConnect={onConnect} onAddChain={onAddChain} currentChainId={useSDKchainID} />
   );
 
   const renderBackAction = (): TouchableWebElement => (
@@ -177,15 +182,21 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
         name = ('OP Mainnet');
       break;
       case '0x7a69':
-        name = 'Hardhat Network';
+        name = ('Hardhat Network');
       break;
       default:
         name = ('UNKNOWN');
     }
+    setCurrentChainName(name)
     return name
   };
 
-
+  useEffect(() => {
+    console.log("topnavbar useEffect chainId: ", useSDKchainID)
+    showChainName(useSDKchainID)
+    
+  })
+  
   return (
     
     <Layout
@@ -197,14 +208,14 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
         style={[styles.topNav,]}
         alignment='center'
         title={
-          connected ? (
-            ("Connected to: "+ showChainName(chainId))
+          useSDKConnected ? (
+            ("Connected to: "+ currentChainName)
           ) : (
             ""
           )}
         subtitle={
-          connected ? (
-            account
+          useSDKConnected ? (
+            useSDKAccount
           ) : (
             "Not connected to any blockchain"
           )}
