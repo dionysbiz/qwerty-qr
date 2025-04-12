@@ -13,6 +13,9 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { url_local } from '../properties/urls_local'
 import { url_dev } from '../properties/urls_dev'
 
+import AIAssistant from "../components/AIAssistant";
+
+
 import DeviceInfo from 'react-native-device-info'
 
 //import axios from 'axios';
@@ -194,6 +197,8 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
       
     </View>
   );
+
+  
   
 
   
@@ -548,6 +553,8 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
       </Layout>
       </>
       : null }
+
+      <AIAssistant />
       
       <Divider />
       <Layout style={{ flex: 1, alignItems: 'center' }}>
