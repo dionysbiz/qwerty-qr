@@ -12,6 +12,7 @@ import {Alert,
   Platform,
   View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { zhHK, en } from './src/translate';
@@ -406,7 +407,8 @@ export const AppNavigator = (): JSX.Element => {
         useSDKConnected={currentConnected}
         useSDKAccount={currentAccount}
       />
-      <NavigationContainer independent={true}>
+      <NavigationIndependentTree>
+
 
         <CurvedBottomBarExpo.Navigator
           type="DOWN"
@@ -416,7 +418,7 @@ export const AppNavigator = (): JSX.Element => {
           height={55}
           circleWidth={50}
           bgColor="white"
-          initialRouteName="title1"
+          //initialRouteName="title1"
           borderTopLeftRight
           renderCircle={({ selectedTab, navigate }) => (
             <Animated.View style={stylesBottomBar.btnCircleUp}>
@@ -435,7 +437,7 @@ export const AppNavigator = (): JSX.Element => {
                 <>
                   <Link href={{
                     pathname: "/scanner",
-                    params: { walletAddr: account }
+                    params: { walletAddr: currentAccount }
                     }} asChild>
                     <Pressable disabled={!isPermissionGranted}>
                       <Ionicons name="qr-code-outline" size={25} color="grey" />
@@ -475,7 +477,7 @@ export const AppNavigator = (): JSX.Element => {
           
         </CurvedBottomBarExpo.Navigator>
         
-      </NavigationContainer>
+      </NavigationIndependentTree>
       
       
     </SafeAreaView>
