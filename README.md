@@ -80,6 +80,20 @@ node_modules/braintree-web/lib/is-verified-domain.js
 node_modules/braintree-web/client/client.js line106 response.configUrl=configUrl
 node_modules/braintree-web/client/client.js
 
+In node_modules/braintree_web/lib/is_verified_domain.js
+
+```
+  //parser = parser || document.createElement("a");
+  //parser.href = url;
+  //mainDomain = stripSubdomains(parser.hostname);
+
+  var result = url.replace(/(^\w+:|^)\/\//, '')
+  mainDomain = stripSubdomains(result);
+  mainDomain = mainDomain.split(':')[0];
+  mainDomain = mainDomain.split('/')[0];
+  console.log("mainDomain", mainDomain);
+```
+
 ---
 Generated from Expo template
 
