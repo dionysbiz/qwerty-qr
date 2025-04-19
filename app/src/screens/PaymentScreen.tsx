@@ -32,6 +32,7 @@ import { zhHK, en } from '../translate';
 
 // ----------------------------------------------------------------------
 
+/*
 const [langPack, setLangPack] = useState(en)
 
 const handleLangChange = (lang: string) => {
@@ -46,6 +47,7 @@ const handleLangChange = (lang: string) => {
       setLangPack(en);
   }
 };
+*/
 
 export type Props = {
   navigation: any,
@@ -63,7 +65,8 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
           targetChainName,
           targetBlockExplorerUrls,
           targetNativeCurrency,
-          targetRpcUrls
+          targetRpcUrls,
+          airdropReceiverAddr
         } = route.params;
 
   // ---------------navigate function--------------- 
@@ -88,6 +91,8 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
   
   const isDarkMode = useColorScheme() === 'dark';
   const [encryptionTime, setEncryptionTime] = useState<number>();
+  
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -98,6 +103,7 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
     readOnlyCalls,
     connected,
   } = useSDK();
+   
   const [response, setResponse] = useState<unknown>('');
 
   
@@ -160,9 +166,12 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
     }
   };
 
+  
   if (!sdk) {
     return <Text>SDK loading</Text>;
   }
+    */
+    
 
   const backgroundStyle = {
     backgroundColor: Colors.lighter,
@@ -179,7 +188,7 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
 
   useEffect(() => {
     //promiseHttpGasPrice()
-    setCurrentChainId(chainId)
+    setCurrentChainId(targetChainId)
     
     if (targetChainId === currentChainId) {
       //Alert.alert(currentChainId)
@@ -206,9 +215,6 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <Button onPress={navigateHome}>
-        Back 
-      </Button>
 
       { isSameChain ? 
       <>
@@ -217,11 +223,22 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
             marginTop: 10,
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.grey,
           }}
         >
-          <PaymentView />
+          <PaymentView airdropReceiverAddr={airdropReceiverAddr}/>
           
+          <Text status='success'>
+            {fiatCurrency}
+            </Text>
+            <Text status='success'>
+              Current Chain ID {currentChainId}
+            </Text>
+
+            <Text status='success'>
+            {targetChainId} {targetChainName} {targetBlockExplorerUrls} {targetNativeCurrency} {targetRpcUrls}
+          </Text>
+
         </View>
       </ScrollView>
       </>
@@ -233,17 +250,15 @@ export function PaymentScreen({ route, navigation }): JSX.Element {
       </>
       }
 
-
-      <Text status='success'>
-      {fiatCurrency}
-      </Text>
-      <Text status='success'>
-        Chain From SDK {chainId} {currentChainId}
-      </Text>
-
-      <Text status='success'>
-      {targetChainId} {targetChainName} {targetBlockExplorerUrls} {targetNativeCurrency} {targetRpcUrls}
-      </Text>
+        <View
+          // eslint-disable-next-line react-native/no-inline-styles
+          style={{
+            marginTop: 10,
+            backgroundColor: Colors.grey,
+          }}
+        >
+      
+      </View>
       
       
     </SafeAreaView>

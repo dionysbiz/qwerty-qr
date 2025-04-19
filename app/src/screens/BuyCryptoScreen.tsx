@@ -24,7 +24,8 @@ var url:any = ""
 
 DeviceInfo.isEmulator().then((isEmulator) => {
   if (isEmulator) {
-    url = url_local;
+    //url = url_local;
+    url = url_dev;
   } else {
     url = url_dev;
   }
@@ -112,7 +113,7 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
         onPress={navigatePayment}
         disabled={!connected}
       >
-        Buy Mainnet Eth
+        Buy our Crypto
       </Button>
 
       
@@ -213,7 +214,8 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
       targetChainName: targetChainName,
       targetBlockExplorerUrls: targetBlockExplorerUrls,
       targetNativeCurrency: targetNativeCurrency,
-      targetRpcUrls: targetRpcUrls
+      targetRpcUrls: targetRpcUrls,
+      airdropReceiverAddr: account
     });
   };
 
@@ -404,6 +406,10 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
   return (
     <>
     <SafeAreaView style={{ flex: 1 }}>
+      <Layout
+          style={styles.topContainer}
+          level='1'
+        >
       <Card
         style={styles.card}
       >
@@ -411,165 +417,50 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
           ETH/USD: ${ethRate.toFixed(2)}
         </Text>
         <Text>
-          Min GasPrice: {gasPrice.toFixed(2)} Gwei 
+          GasPrice: {gasPrice.toFixed(2)} Gwei 
         </Text>
         <Text>
-          Min Tx Fee in Gwei: {minTxFeeGwei.toFixed(2)} Gwei
-        </Text>
-        <Text>
-          Min Tx Fee in USD: $ {minTxFeeUSD.toFixed(2)} 
+          Min Tx Fee in Gwei: {minTxFeeGwei.toFixed(2)} Gwei /USD$ {minTxFeeUSD.toFixed(2)} 
         </Text>
       </Card>
-
       { chainId==='0x1' ? 
       <>
-      <Layout
-        style={styles.topContainer}
-        level='1'
-      >
-
         <Card
           style={styles.card}
           footer={FooterMainnetEtherum}
           onPress={onPressMainnetETH}
         >
           <Text>
-            Mainnet Etherum
+            Buy our crypto in Mainnet
           </Text>
         </Card>
-
-        <Card
-          style={styles.card}
-          footer={FooterMainnetUSDT}
-          onPress={onPressMainnetUSDT}
-        >
-          <Text>
-            Mainnet USDT
-          </Text>
-        </Card>
-
-      </Layout>
-      <Layout
-        style={styles.topContainer}
-        level='1'
-      >
-
-        <Card
-          style={styles.card}
-          footer={FooterMainnetERC20}
-          onPress={onPressMainnetERC20JPY}
-        >
-          <Text>
-            Mainnet ERC JPY
-          </Text>
-        </Card>
-
-        <Card
-          style={styles.card}
-          footer={FooterMainnetERC20}
-          onPress={onPressMainnetERC20HKD}
-        >
-          <Text>
-          Mainnet ERC HKD
-          </Text>
-        </Card>
-
-      </Layout>
       </>
-      : chainId==='0xa4b1' ? 
-      // Arbitrum
+      : chainId==='0xa4b1' ?
       <>
-      <Layout
-        style={styles.topContainer}
-        level='1'
-      >
-
         <Card
           style={styles.card}
-          footer={FooterL2Arbitrum}
-          onPress={onPressL2ArbitrumERC20JPY}
+          footer={FooterMainnetEtherum}
+          onPress={onPressMainnetETH}
         >
           <Text>
-            L2 Arbitrum ERC20 JPY
+            Buy our crypto in Testnet
           </Text>
         </Card>
-
-        <Card
-          style={styles.card}
-          footer={FooterL2Arbitrum}
-          onPress={onPressL2ArbitrumERC20HKD}
-        >
-          <Text>
-            L2 Arbitrum ERC20 HKD
-          </Text>
-        </Card>
-
-      </Layout>
-      <Layout
-        style={styles.topContainer}
-        level='1'
-      >
-
-        <Card
-          style={styles.card}
-          footer={FooterL2Arbitrum}
-          onPress={onPressL2ArbitrumEth}
-        >
-          <Text>
-            L2 Arbitrum Etherum
-          </Text>
-        </Card>
-
-      </Layout>
-      </>
-      : chainId==='0xa' ? 
-      // OP Mainnet
-      <>
-      <Layout
-        style={styles.topContainer}
-        level='1'
-      >
-
-        <Card
-          style={styles.card}
-          footer={FooterL2OpMainnet}
-          onPress={onPressL2OptimismEth}
-        >
-          <Text>
-            L2 OP Etherum
-          </Text>
-        </Card>
-
-        <Card
-          style={styles.card}
-          footer={FooterL2OpMainnet}
-          onPress={onPressL2OptimismERC20HKD}
-        >
-          <Text>
-            L2 OP ERC20 HKD
-          </Text>
-        </Card>
-
-      </Layout>
       </>
       : null }
+      </Layout>
 
       <AIAssistant />
       
       <Divider />
-      <Layout style={{ flex: 1, alignItems: 'center' }}>
-        <Button style={styles.tokenPurchaseRecordBtn}>
-          Check your token Purchase Records
-        </Button>
-        <Button style={styles.tokenPurchaseRecordBtn} onPress={() => console.log(chainId)}>
-          Current Chain ID:
-        </Button>
 
+      <Layout style={{ flex: 1, alignItems: 'center' }}>
         <Button style={styles.tokenPurchaseRecordBtn} onPress={() => sendTestOrder()}>
-          Send a test order
+          Check Token Purchase Record
         </Button>
         
       </Layout>
+
     </SafeAreaView>
     </>
   );
@@ -586,7 +477,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   footerControl: {
     marginHorizontal: 2,

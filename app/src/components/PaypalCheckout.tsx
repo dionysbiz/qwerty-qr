@@ -8,15 +8,18 @@ import Spinner from 'react-native-loading-spinner-overlay';
 //var braintreeDropin = require('braintree-web-drop-in').create;
 var braintree = require('braintree-web/client');
 
+
 //import braintree from "braintree-web-drop-in"
 //import axios from 'axios';
-import { url } from '../properties/urls_local'
+import { url_local } from '../properties/urls_local'
+import { url_dev } from '../properties/urls_dev'
 
 import {
   Button,
   useStyleSheet,
   StyleService
 } from '@ui-kitten/components';
+import { PopoutQuestionBox } from '../components/YesNoConfirmBox';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 //import { requestOneTimePayment, requestBillingAgreement, requestDeviceData } from 'react-native-paypal'; 
@@ -24,11 +27,23 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 // For device data collection see: https://developers.braintreepayments.com/guides/advanced-fraud-management-tools/device-data-collection/
 //const { deviceData } = await requestDeviceData('sandbox_6mkqpnhy_by5njgvk52fwvjqw');
 
-export type Props = {
+var url:any = ""
 
+DeviceInfo.isEmulator().then((isEmulator) => {
+  if (isEmulator) {
+    //url = url_local;
+    url = url_dev;
+  } else {
+    url = url_dev;
+  }
+});
+
+export type Props = {
+  airdropReceiverAddr: string;
 };
 
-export const PaypalCheckout = ({ }): React.ReactElement => {
+export const PaypalCheckout = ({ airdropReceiverAddr }): React.ReactElement => {
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -39,8 +54,9 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
   
-  type dvInfo = { 
+  interface dvInfo { 
     carrier: string,
     device: string,
     bundleId: string,
@@ -66,11 +82,23 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
 
   // ---------------State variables--------------- 
   const anchorRef = useRef(null);
+  const verifiedCreditcardRef = useRef({
+    "number": '',
+    "expirationDate": '',
+    "cvv": '',
+    "billingAddress": {
+      "postalCode": '',
+      "address": ''
+    },
+  });
   //const [braintree, setBraintree] = useState(dropin);
   const [open, setOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState("en");
   const [loadingDisable, setLoadingDisable] = useState(false);
   const [ready4transaction, setReady4transaction] = useState(false);
+  const [targetAmount, setTargetAmount] = useState("0");
+  const [targetCurrency, setTargetCurrency] = useState("");
+  const [confirmBoxVisible, setConfirmBoxVisible] = useState(false);
   const [dvInfo2send, setDvInfo2send] = React.useState<dvInfo>(
     {
       "carrier": '',
@@ -85,6 +113,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       "isEmulator": false
     }
   );
+  /*
   const [verifiedCreditcard, setVerifiedCreditcard] = React.useState<creditCardInfo>(
     {
       "number": '',
@@ -96,6 +125,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       },
     }
   );
+  */
   const [chainListVisible, setChainListVisible] = React.useState(false);
 
   // ---------------Style Sheets--------------- 
@@ -110,6 +140,9 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       flex: 1,
     },
     container: {
+    },
+    buyButton: {
+      margin: 2,
     },
   }));
 
@@ -146,7 +179,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
   // ---------------onPress Handler---------------
   const getDvInfo = () => {
 
-    const deviceInfo:dvInfo = {
+    const deviceInfo = {
       "carrier": '',
       "device": '',
       "bundleId": '',
@@ -260,10 +293,11 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     //setLoadingDisable(true)
     setReady4transaction(false)
     if (form.valid) {
-      setLoadingDisable(true)
+      //setLoadingDisable(true)
       console.log("card filled, going to verification process")
       verifiedCard(form)
     } else {
+      console.log("Car NOT yet valid")
       const blankCard = {
         "number": '',
         "expirationDate": '',
@@ -273,7 +307,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
           "address": ''
         },
       }
-      setVerifiedCreditcard(blankCard)
+      verifiedCreditcardRef.current = blankCard
       setReady4transaction(false)
     }
   }
@@ -282,24 +316,34 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
     console.log("verifiedCard")
     setReady4transaction(false)
     getDvInfo()
-    fetch(url.braintree_getClientTokenRequest).then((responseFromBraintree) => {
-      console.log(responseFromBraintree.json);
+    fetch(url.braintree_getClientTokenRequest).then(responseFromBraintree => responseFromBraintree.text()
+      //{console.log("responseFromBraintree",responseFromBraintree)}
+    ).then((text) => {
+      console.log("text",text);
+      var b = Buffer.from(text, 'base64')
+      var json = b.toString();
+      console.log("json",json);
+      
       braintree.create(
         {
-          authorization: responseFromBraintree.json,
+          authorization: text,
         },
         function (err: any, client: any) {
-          console.log(client)
+          console.log("client",client)
+          //console.log("cardinfo",cardinfo)
+          //console.log("number",cardinfo.values.number)
           if (err) {
             console.log(err);
             if (err.code === 'CLIENT_AUTHORIZATION_INVALID') {
               // either the client token has expired, and a new one should be generated
               // or the tokenization key was deactivated or deleted
             } else {
-              console.log('something went wrong creating the client instance', err);
+              console.log('something went wrong creating the client instance when verify card', err);
             }
+            setLoadingDisable(false)
             return;
           }
+          
           client.request(
             {
               endpoint: "payment_methods/credit_cards",
@@ -314,9 +358,10 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
                   },
                 },
               },
+              
             },
             function cb(err: any, response: any) {
-              console.log("Response before createTransaction")
+              console.log("Response before createTransaction verifyTransaction")
               console.log(response);
               console.log("Nonce:")
               console.log(response.creditCards[0].nonce);
@@ -339,14 +384,16 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
                   'currency': 'GBP'
                 }
               }
-              ).then((response2FromBraintree) => {
+              ).then((response2FromBraintree) => response2FromBraintree.json()
+              ).then((json) => {
                 setLoadingDisable(false)
                 setReady4transaction(true)
+                //setNonce(json.creditCards[0].nonce)
                 console.log("Response of verifyCreditCard")
-                console.log(response2FromBraintree);
+                console.log(json)
                 
                 if (dvInfo2send.isEmulator) {
-                  setVerifiedCreditcard({
+                  verifiedCreditcardRef.current = {
                     "number": "4111111111111111",
                     "expirationDate": "10/20",
                     "cvv": "123",
@@ -354,9 +401,9 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
                       "postalCode": "12345",
                       "address": "yourAddress"
                     },
-                  })
+                  }
                 } else {
-                  setVerifiedCreditcard({
+                  verifiedCreditcardRef.current ={
                     "number": cardinfo.values.number,
                     "expirationDate": cardinfo.values.expiry,
                     "cvv": cardinfo.values.cvc,
@@ -364,7 +411,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
                       "postalCode": "12345",
                       "address": "yourAddress"
                     },
-                  })
+                  }
                 }
 
               })
@@ -372,17 +419,22 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
           );
         }
       );
+      
     })
     
   }
+
 
   const createTransaction = async (amount:string, fiatCurrency:string) => {
     setLoadingDisable(true)
     console.log("Ready2Call getClientTokenRequest");
 
     //axios.get("http://10.0.2.2:8088/getClientTokenRequest").then((responseFromBraintree) => {
-      fetch(url.braintree_getClientTokenRequest).then((responseFromBraintree) => {
-      console.log(responseFromBraintree.json);
+    fetch(url.braintree_getClientTokenRequest
+
+    ).then((responseFromBraintree) => responseFromBraintree.text()
+    ).then((text) => {
+      console.log(text);
       
       /*
       braintreeDropin({
@@ -408,7 +460,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
       
       braintree.create(
         {
-          authorization: responseFromBraintree.json,
+          authorization: text,
           //container: '#dropin-container', 
           //paypal: {
             //flow: 'checkout',
@@ -418,7 +470,7 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
           //},
           //debug: true
         },
-        function (err: any, client: any) {
+        async function (err: any, client: any) {
           console.log(client)
           if (err) {
             console.log(err);
@@ -426,26 +478,31 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
               // either the client token has expired, and a new one should be generated
               // or the tokenization key was deactivated or deleted
             } else {
-              console.log('something went wrong creating the client instance', err);
+              console.log('something went wrong creating the client instance when create transaction', err);
             }
             return;
           }
+          console.log("verifiedCreditcardRef",verifiedCreditcardRef.current.number)
+          console.log("verifiedCreditcardRef",verifiedCreditcardRef.current.expirationDate)
+          console.log("verifiedCreditcardRef",verifiedCreditcardRef.current.cvv)
+
           client.request(
             {
               endpoint: "payment_methods/credit_cards",
               method: "post",
               data: {
                 creditCard: {
-                  number: verifiedCreditcard.number,
-                  expirationDate: verifiedCreditcard.expirationDate,
-                  cvv: verifiedCreditcard.cvv,
+                  number: verifiedCreditcardRef.current.number,
+                  expirationDate: verifiedCreditcardRef.current.expirationDate,
+                  cvv: verifiedCreditcardRef.current.cvv,
                   billingAddress: {
                     postalCode: "12345",
                   },
                 },
               },
             },
-            function cb(err: any, response: any) {
+            
+            async function cb(err: any, response: any) {
               console.log("DeviceInfo:")
               console.log(dvInfo2send);
               console.log("Response before createTransaction")
@@ -453,46 +510,58 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
               console.log("Nonce:")
               console.log(response.creditCards[0].nonce);
               
+              /*
               const header = {
                 headers: {
                   'Content-Type': 'application/json',
                   'nonce': response.creditCards[0].nonce,
                   'amount': amount,
-                  'currency': 'GBP'
+                  'currency': fiatCurrency
                 }
-              };
-              
-                
-
-              // Send response.creditCards[0].nonce to your server
-              //axios.post("http://paypalbraintreeserver-dev.dionys.xyz/createTransaction",
-              fetch(url.braintree_createTransaction, {
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                  'nonce': response.creditCards[0].nonce,
-                  'amount': amount,
-                  'currency': 'GBP'
-                },
-                body: JSON.stringify({
-                  jsonrpc: '2.0',
-                  method: 'eth_gasPrice',
-                  params: [],
-                  id: 1
-                }),
               }
-              ).then((response2FromBraintree) => {
-                console.log("Response of createTransaction")
-                console.log(response2FromBraintree);
-              })
+              */
+              // Send response.creditCards[0].nonce to your server
+              console.log("Ready to fetch the create Transaction",url.braintree_createTransaction);
+
+              try {
+
+                var dvInfo2sendStr = JSON.stringify(dvInfo2send)
+                console.log("dvInfo2sendStr",dvInfo2sendStr)
+                const response2 = await fetch(url.braintree_createTransaction, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Connection': 'keep-alive',
+                    'amount': amount,
+                    'currency': fiatCurrency,
+                    'toAddr': airdropReceiverAddr,
+                    'tokenContractAddr': '0xc',
+                    'nonce': response.creditCards[0].nonce
+                  },
+                  body: dvInfo2sendStr
+                }
+                ).then((response2FromBraintreeServer) => response2FromBraintreeServer.text()
+                ).then((text) => {
+                  console.log("Response of createTransaction")
+                  console.log(text);
+                  setChainListVisible(false)
+                })
+              } catch(err) {
+                  console.error('err.message:', err);
+              }
+
+              
+              
             }
           );
+          
+
         }
       );
       
       
       
+
     });
     setLoadingDisable(false)
   };
@@ -542,32 +611,49 @@ export const PaypalCheckout = ({ }): React.ReactElement => {
 
   return (
     <>
-        <Spinner
-          visible={loadingDisable}
-          textContent={'Verification in progress...'}
-          textStyle={stylesOverlay.spinnerTextStyle}
-        />
+      <Spinner
+        visible={loadingDisable}
+        textContent={'Verification in progress...'}
+        textStyle={stylesOverlay.spinnerTextStyle}
+      />
 
       <CreditCardInput onChange={onCreditCardChange}/>
       
-      { verifiedCreditcard.number!=='' ? 
+      { ( ready4transaction )? 
       <>
       <Button
       //appearance='ghost'
+      style={styles.buyButton}
       status='danger'
-      onPress={createTransaction(1000)}
+      onPress={() => {
+        setConfirmBoxVisible(true) 
+        setTargetCurrency("GBP")
+        setTargetAmount("1000")}
+        //createTransaction(targetAmount,targetCurrency)}
+      }
       >
         Buy $1000
       </Button>
       <Button
       //appearance='ghost'
+      style={styles.buyButton}
       status='danger'
-      onPress={createTransaction(5000)}
+      onPress={ () => {
+        setConfirmBoxVisible(true) 
+        setTargetCurrency("GBP")
+        setTargetAmount("5000")}
+        //createTransaction(targetAmount,targetCurrency)}
+      }
       >
         Buy $5000
       </Button>
       </>
      : null }
+      { (  confirmBoxVisible)? 
+      <>
+      <PopoutQuestionBox amount={targetAmount} fiatCurrency={targetCurrency} airdropReceiverAddr={airdropReceiverAddr} onConfirm={() => createTransaction(targetAmount, targetCurrency)} onCancel={() => setConfirmBoxVisible(false)} />
+      </>
+      : null }
       
     </>
   );

@@ -9,7 +9,7 @@ import { ServiceStatus } from '@metamask/sdk';
 import { ethers } from 'ethers';
 import { PaypalCheckout } from '../components/PaypalCheckout';
 
-export interface PaymentViewProps {}
+export interface PaymentViewProps { airdropReceiverAddr: string }
 
 const createStyles = ({ connected }: { connected: boolean }) => {
   return StyleSheet.create({
@@ -44,18 +44,8 @@ const createStyles = ({ connected }: { connected: boolean }) => {
 };
 
 export const PaymentView = (_props: PaymentViewProps) => {
-  const {
-    sdk,
-    provider: ethereum,
-    status,
-    chainId,
-    account,
-    balance,
-    readOnlyCalls,
-    connected,
-  } = useSDK();
   const [response, setResponse] = useState<unknown>('');
-  const styles = createStyles({ connected });
+  //const styles = createStyles({ connected });
 
   const textStyle = {
     color: colors.text.default,
@@ -65,8 +55,7 @@ export const PaymentView = (_props: PaymentViewProps) => {
 
   return (
     <View style={{ margin: 10, marginTop: 50, borderWidth: 2, padding: 5,  }}>
-
-    <PaypalCheckout />
+    <PaypalCheckout airdropReceiverAddr={_props.airdropReceiverAddr}/>
 
     </View>
   );
