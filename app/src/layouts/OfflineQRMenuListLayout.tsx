@@ -60,7 +60,7 @@ const itemNull:IListItem = {
   dateUpdate: null,
 }
 
-export const OfflineQRMenuListLayout = (): JSX.Element => {
+export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
@@ -108,7 +108,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       disabled={false} 
       onPress={ () => onClickShowQRCodebutton(item)
       }>
-      QR Code
+      {langPack.offlineQRMenuListLayout_itemlist_showQR}
     </Button>
     <Button 
       size='tiny' 
@@ -116,7 +116,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       disabled={false} 
       onPress={ () => testOrder(item)
       }>
-      TEST Order
+      {langPack.offlineQRMenuListLayout_itemlist_testOrder}
     </Button>
     <Button 
       size='tiny' 
@@ -126,7 +126,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
         setCurrentEditingItem(item)
         setDeleteItemConfirmModalVisible(true)
       }}>
-      Delete
+      {langPack.offlineQRMenuListLayout_itemlist_delete}
     </Button>
     </>
   );
@@ -161,11 +161,11 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
       //onScreenIdx: itemList.length,
       id: "",
       name: "",
-      description: "Description",
-      crypto_name_short: "Select Token",
+      description: langPack.offlineQRMenuListLayout_itemEntry_desc,
+      crypto_name_short: langPack.offlineQRMenuListLayout_itemEntry_selectToken,
       crypto_contract_addr: null,
       crypto_chain_id: null,
-      crypto_price_ezread: '0',
+      crypto_price_ezread: null,
       dateCreate: new Date(),
       dateUpdate: new Date(),
     }
@@ -499,6 +499,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
         <OfflineItemEditCard 
           item={currentEditingItem} 
           saveItemHandler={onClickSavebutton}
+          langPack={langPack}
         />
       </Modal>
 
@@ -508,11 +509,11 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
         onBackdropPress={() => setDeleteItemConfirmModalVisible(false)}
       >
         <Text>
-          Confirm to delete?
+          {langPack.offlineQRMenuListLayout_confirmDelete}
         </Text>
         <Button
         onPress={ () => deleteOfflineQRItem(currentEditingItem)}>
-          DELETE
+          {langPack.offlineQRMenuListLayout_delete}
         </Button>
       </Modal>
 
@@ -532,15 +533,15 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
             <Text category='h5'>
               {currentEditingItem.name}
             </Text> 
-            <Text>Crypto: {currentEditingItem.crypto_name_short}</Text>
-            <Text>Price: {currentEditingItem.crypto_price_ezread}</Text>
-            <Text>Description: {currentEditingItem.description}</Text>
+            <Text>{langPack.offlineQRMenuListLayout_item_crypto}: {currentEditingItem.crypto_name_short}</Text>
+            <Text>{langPack.offlineQRMenuListLayout_item_price}: {currentEditingItem.crypto_price_ezread}</Text>
+            <Text>{langPack.offlineQRMenuListLayout_item_desc}: {currentEditingItem.description}</Text>
             <Text>  </Text>
             <Button 
               size='large' 
               disabled={false} 
               >
-              PRINT
+              {langPack.offlineQRMenuListLayout_button_exportQR}
             </Button>
           </View>
         </View> 
@@ -554,7 +555,7 @@ export const OfflineQRMenuListLayout = (): JSX.Element => {
           level='1'
         >
           <Text category='h5' style={styles.title}>
-            QR Menu Items
+            {langPack.offlineQRMenuListLayout_title}
           </Text>
           <Button
             style={styles.addItemButton}

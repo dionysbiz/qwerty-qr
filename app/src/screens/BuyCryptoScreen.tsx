@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRef, useState, useEffect } from 'react';
-import { StyleSheet, StatusBar, SafeAreaView, useColorScheme, View  } from 'react-native';
+import { StyleSheet, StatusBar, SafeAreaView, useColorScheme, View, Modal  } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Button, Divider, Layout, Card, Text } from '@ui-kitten/components';
+import { withStyles } from '@ui-kitten/components';
+import { Button, Divider, Layout, Card, Text, useStyleSheet, StyleService,  List, ListItem } from '@ui-kitten/components';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { zhHK, en } from '../translate';
+import { languagesList } from '../translate';
+
 import { PaymentScreen } from './PaymentScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { useSDK } from '@metamask/sdk-react';
@@ -33,9 +35,11 @@ DeviceInfo.isEmulator().then((isEmulator) => {
 
 export type Props = {
   navigation: any,
+  handleLangChange: any,
+  langPack: any
 };
 
-export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
+export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JSX.Element => {
   // ---------------State variables---------------
   const [ethRate, setEthRate] = useState(0); 
   const [gasPrice, setGasPrice] = useState(0);
@@ -51,6 +55,8 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
   const [minTxFeeGwei, setMinTxFeeGwei] = useState(0);
   const [minTxFeeUSD, setMinTxFeeUSD] = useState(0);
 
+  const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+
   const {
     sdk,
     provider: ethereum,
@@ -62,11 +68,59 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
     connected,
   } = useSDK();
 
+  const selectLanguage = (languageCode: string) => {
+    console.log(`Selected language: ${languageCode}`);
+    setLanguageModalVisible(false);
+    // Add logic to update the app's language here
+    handleLangChange(languageCode);
+  };
+
+  const renderLanguageItem = ({ item }) => (
+    <ListItem
+      title={item.name}
+      onPress={() => selectLanguage(item.code)}
+    />
+  );
+
+  
+
   // ---------------Style Sheets--------------- 
   const backgroundStyle = {
     backgroundColor: Colors.lighter,
     flex: 1,
   };
+
+  const evastyles = useStyleSheet(StyleService.create({
+    button: {
+      margin: 2,
+      backgroundColor: 'color-info-transparent-600', 
+    },
+    container: {
+    },
+  }));
+
+  const styles = StyleSheet.create({
+    topContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    card: {
+      flex: 1,
+      margin: 2,
+      backgroundColor: 'rgba(0, 149, 255, 0.24)',
+    },
+    footerContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    footerControl: {
+      marginHorizontal: 2,
+    },
+    tokenPurchaseRecordBtn: {
+      margin: 2,
+      backgroundColor: 'color-primary-default',
+    },
+  });
 
   
   // ---------------Visual Items--------------- 
@@ -199,6 +253,29 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
     </View>
   );
 
+  const LanguageList = (props: ViewProps): React.ReactElement => (
+    <Modal
+      visible={isLanguageModalVisible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setLanguageModalVisible(false)}
+    >
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <Card disabled={true} style={{ width: '80%', padding: 20 }}>
+          <Text category="h6" style={{ marginBottom: 10 }}>
+            {langPack.button_language_pleaseselect}
+          </Text>
+          <List
+            data={languagesList}
+            renderItem={renderLanguageItem}
+          />
+          <Button style={{ marginTop: 10 }} onPress={() => setLanguageModalVisible(false)}>
+            {langPack.button_language_close}
+          </Button>
+        </Card>
+      </View>
+    </Modal>
+  );
   
   
 
@@ -407,82 +484,74 @@ export const BuyCryptoScreen = ({ navigation }) : JSX.Element => {
     <>
     <SafeAreaView style={{ flex: 1 }}>
       <Layout
-          style={styles.topContainer}
-          level='1'
-        >
-      <Card
-        style={styles.card}
+        style={styles.topContainer}
+        level='2'
       >
-        <Text>
-          ETH/USD: ${ethRate.toFixed(2)}
-        </Text>
-        <Text>
-          GasPrice: {gasPrice.toFixed(2)} Gwei 
-        </Text>
-        <Text>
-          Min Tx Fee in Gwei: {minTxFeeGwei.toFixed(2)} Gwei /USD$ {minTxFeeUSD.toFixed(2)} 
-        </Text>
-      </Card>
-      { chainId==='0x1' ? 
-      <>
-        <Card
-          style={styles.card}
-          footer={FooterMainnetEtherum}
-          onPress={onPressMainnetETH}
-        >
-          <Text>
-            Buy our crypto in Mainnet
-          </Text>
-        </Card>
-      </>
-      : chainId==='0xa4b1' ?
-      <>
-        <Card
-          style={styles.card}
-          footer={FooterMainnetEtherum}
-          onPress={onPressMainnetETH}
-        >
-          <Text>
-            Buy our crypto in Testnet
-          </Text>
-        </Card>
-      </>
-      : null }
+          <Card
+            style={styles.card}
+          >
+            <Text>
+              ETH/USD: ${ethRate.toFixed(2)}
+            </Text>
+            <Text>
+              GasPrice: {gasPrice.toFixed(2)} Gwei 
+            </Text>
+            <Text>
+              Min Tx Fee in Gwei: {minTxFeeGwei.toFixed(2)} Gwei /USD$ {minTxFeeUSD.toFixed(2)} 
+            </Text>
+          </Card>
+          { chainId==='0x1' ? 
+          <>
+            <Card
+              style={styles.card}
+              footer={FooterMainnetEtherum}
+              onPress={onPressMainnetETH}
+            >
+              <Text>
+                Buy our crypto in Mainnet
+              </Text>
+            </Card>
+          </>
+          : chainId==='0xa4b1' ?
+          <>
+            <Card
+              style={styles.card}
+              footer={FooterMainnetEtherum}
+              onPress={onPressMainnetETH}
+            >
+              <Text>
+                Buy our crypto in Testnet
+              </Text>
+            </Card>
+            
+          </>
+        : null }
       </Layout>
 
       <AIAssistant />
       
       <Divider />
 
-      <Layout style={{ flex: 1, alignItems: 'center' }}>
-        <Button style={styles.tokenPurchaseRecordBtn} onPress={() => sendTestOrder()}>
-          Check Token Purchase Record
-        </Button>
-        
+      <Layout level='1' style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', padding: 10, maxHeight: 90}}>
+        <Layout level='1' style={{justifyContent: 'center', alignItems: 'center' }}>
+          <Button style={evastyles.button} onPress={() => sendTestOrder()}>
+            Token Purchase Record
+          </Button>
+        </Layout>
+        <Layout level='1' style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Button style={evastyles.button} onPress={() => setLanguageModalVisible(true)}>
+            {langPack.button_language}
+          </Button>
+        </Layout>
       </Layout>
+      <Layout level='1' style={{ flex: 1, flexDirection: 'row', maxHeight: 40}}>
+
+      </Layout>
+
+      <LanguageList/>
 
     </SafeAreaView>
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  card: {
-    flex: 1,
-    margin: 2,
-  },
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  footerControl: {
-    marginHorizontal: 2,
-  },
-  tokenPurchaseRecordBtn: {
-    margin: 2,
-  },
-});

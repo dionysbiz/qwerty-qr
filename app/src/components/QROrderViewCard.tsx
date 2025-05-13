@@ -60,10 +60,11 @@ const CHAINTOKENLIST = [
 
 export type Props = {
   item: any,
-  deleteOrderHandler: any ,
+  deleteOrderHandler: any,
+  langPack: any,
 };
 
-export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElement => {
+export const QROrderViewCard = ({ item, deleteOrderHandler, langPack }): React.ReactElement => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   //const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
@@ -158,26 +159,27 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
   return (
     <Layout style={styles.modalcontainer}>
     <Card style={styles.container} disabled={true}>
-      <Text>OrderId: {itemId}</Text>
-      <Text>Date/Time: {item.dateCreate.toISOString()}</Text>
+      <Text>{langPack.qROrderViewCard_orderId}: {itemId}</Text>
+      <Text>{langPack.qROrderViewCard_receivedDate}: {item.dateCreate.toISOString()}</Text>
       <Text>  </Text>
-      <Text>Name: {itemName}</Text>
-      <Text>Crypto: {itemCryptoShort}</Text>
-      <Text>Price: {itemPriceCryptoEzread}</Text>
+      <Text>{langPack.qROrderViewCard_order_name}: {itemName}</Text>
+      <Text>{langPack.qROrderViewCard_order_crypto}: {itemCryptoShort}</Text>
+      <Text>{langPack.qROrderViewCard_order_price}: {itemPriceCryptoEzread}</Text>
       <Text>  </Text>
-      <Text>From: ..{itemFromAddr.substring(20)}</Text>
-      <Text>BlockChain: {chainName}</Text>
+      <Text>{langPack.qROrderViewCard_order_fromAddr}: ..{itemFromAddr.substring(20)}</Text>
+      <Text>{langPack.qROrderViewCard_order_blockChain}: {chainName}</Text>
+      <Text>  </Text>
       <Button
         size='small' 
         style={styles.button}
         onPress={ () => Linking.openURL(urlBlockScan+"tx/"+itemTxHash)}>
-        Transaction Detail
+        {langPack.qROrderViewCard_button_txDetails}
       </Button>
       <Button
         size='small' 
         style={styles.button}
         onPress={ () => Linking.openURL(urlBlockScan+"address/"+itemCryptoContractAddr)}>
-        Crypto Contract Address
+        {langPack.qROrderViewCard_button_contractDetails}
       </Button>
       <Text>  </Text>
       {visibleDelete && (<Button
@@ -189,7 +191,7 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
           setVisibleDelete(false)
           setVisibleConfirmDelete(true)
           }}>
-        DELETE Order
+        {langPack.qROrderViewCard_button_delete}
       </Button>)}
       {visibleConfirmDelete && (<Button
         size='small' 
@@ -200,7 +202,7 @@ export const QROrderViewCard = ({ item, deleteOrderHandler }): React.ReactElemen
           setVisibleConfirmDelete(false)
           deleteOrderHandler(item)
         }}>
-        CONFIRM DELETE
+        {langPack.qROrderViewCard_button_confirmdelete}
       </Button>)}
       
       
@@ -233,8 +235,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     margin: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    //alignItems: 'center',
+    //justifyContent: 'center',
   },
   button: {
     margin: 2,

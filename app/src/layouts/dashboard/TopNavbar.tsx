@@ -104,7 +104,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
   const styles = useStyleSheet(StyleService.create({
     topNav: {
       //flex: 1,
-      backgroundColor: 'color-warning-400', 
+      //backgroundColor: 'color-warning-400', 
       //height: 150,
       maxHeight: 20,
       justifyContent: 'space-between',
@@ -209,7 +209,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
         alignment='center'
         title={
           useSDKConnected ? (
-            ("Connected to: "+ currentChainName)
+            ( langPack.topNavBar_connected+": "+ currentChainName)
           ) : (
             ""
           )}
@@ -217,7 +217,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
           useSDKConnected ? (
             useSDKAccount
           ) : (
-            "Not connected to any blockchain"
+            (langPack.topNavBar_notconnected)
           )}
         accessoryRight={renderRightActions2}
       />

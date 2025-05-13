@@ -167,8 +167,10 @@ export const AppNavigator = (): JSX.Element => {
       textAlign: "center",
     },
     statusBarBackground: {
-      height: (Platform.OS === 'ios') ? 18 : 30, //this is just to test if the platform is iOS to give it a height of 18, else, no height (Android apps have their own status bar)
-      backgroundColor: "grey",
+      height: (Platform.OS === 'ios') ? 18 : 25, //this is just to test if the platform is iOS to give it a height of 18, else, no height (Android apps have their own status bar)
+      //backgroundColor: "grey",
+      //backgroundColor: "transparent", // Set to transparent
+
     },
     loading: {
       flex: 1,
@@ -248,8 +250,8 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='BuyCryptoScreen' component={BuyCryptoScreen}/>
-          <Stack.Screen name='PaymentScreen' component={PaymentScreen}/>
+          <Stack.Screen name='BuyCryptoScreen' component={() =><BuyCryptoScreen navigation handleLangChange={handleLangChange} langPack={langPack}/>} />
+          <Stack.Screen name='PaymentScreen' component={() => <PaymentScreen route navigation/>}/>
         </Stack.Navigator>
     )
     //navigation={MyStack}
@@ -259,7 +261,7 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='ShopManagementScreen' component={ShopManagementScreen}/>
+          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack}/>}/>
           <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
           <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
           <Stack.Screen name='ReceivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
@@ -379,9 +381,9 @@ export const AppNavigator = (): JSX.Element => {
   if (!sdk) {
     return (
       <View style={styles.loading}>
-          <Spinner />
-          <Text>Preparing for chicken..</Text>
-        </View>
+        <Spinner />
+        <Text>{langPack.loading_msg}</Text>
+      </View>
     );
   } else {
     //sdk?.terminate();
@@ -391,8 +393,14 @@ export const AppNavigator = (): JSX.Element => {
   
   return( 
     <>
-    <View style={[styles.statusBarBackground || {}]}>
-    </View>
+    {/*
+    <View style={[styles.statusBarBackground || {}]}></View>
+    */}
+    <StatusBar
+      translucent
+      backgroundColor="steelblue"
+      barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+    />
       
     <SafeAreaView style={{ flex: 1 }}>
          

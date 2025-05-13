@@ -73,9 +73,10 @@ const CHAINTOKENLIST = [
 export type Props = {
   item: any,
   closeHandler: any ,
+  langPack: any,
 };
 
-export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactElement => {
+export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.ReactElement => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   //const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
@@ -181,9 +182,9 @@ export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactEleme
 
   useEffect(() => {
     if (itemId===""){
-      setSaveBtnText("Create")
+      setSaveBtnText(langPack.offlineQRMenuListLayout_itemEntry_savebutton_create)
     } else {
-      setSaveBtnText("Update")
+      setSaveBtnText(langPack.offlineQRMenuListLayout_itemEntry_savebutton_update)
     }
     
     /*
@@ -214,7 +215,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactEleme
     <Layout style={styles.modalcontainer}>
     <Card style={styles.container} disabled={true}>
       <Input style={styles.inputbox}
-        placeholder='Item Name'
+        placeholder={langPack.offlineQRMenuListLayout_itemEntry_itemName}
         value={itemName}
         onChangeText={nextValue => {
           setItemName(nextValue)
@@ -223,7 +224,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactEleme
       />
       <Input style={styles.inputbox}
          textStyle={styles.inputTextStyle}
-        placeholder='Description'
+        placeholder={langPack.offlineQRMenuListLayout_itemEntry_desc}
         value={itemDescription}
         multiline={true}
         onChangeText={nextValue => {
@@ -267,7 +268,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactEleme
       })}
       </Select>
       <Input style={styles.inputbox}
-        placeholder='Price'
+        placeholder={langPack.offlineQRMenuListLayout_itemEntry_price}
         value={itemPriceCryptoEzread}
         onChangeText={nextValue => {
           setItemPriceCryptoEzread(nextValue.replace(/[^0-9]/g, ''))
@@ -278,8 +279,8 @@ export const OfflineItemEditCard = ({ item, saveItemHandler }): React.ReactEleme
 
       {itemId !== '' &&
       <>
-        <Text>Date Created: {item.dateCreate.toISOString()} </Text>
-        <Text>Last Updated: {item.dateUpdate.toISOString()} </Text>
+        <Text>{langPack.offlineItemEditCard_dateCreated}: {item.dateCreate.toISOString()} </Text>
+        <Text>{langPack.offlineItemEditCard_dateUpdated}: {item.dateUpdate.toISOString()} </Text>
       </>
       }
 

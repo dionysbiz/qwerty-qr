@@ -93,7 +93,7 @@ const kafka = new Kafka({
   */
 
 
-export const ReceivedQROrderListLayout = (): JSX.Element => {
+export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
@@ -158,7 +158,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         setCurrentEditingOrder(item)
         setDeleteOrderConfirmModalVisible(true)
       }}>
-      Delete
+      {langPack.receivedQROrderListLayout_list_btn_delete}
     </Button>
     <Button 
       size='tiny' 
@@ -166,7 +166,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
       disabled={false} 
       onPress={ () => null
       }>
-      Refund
+      {langPack.receivedQROrderListLayout_list_btn_refund}
     </Button>
     <Button 
       size='tiny' 
@@ -174,7 +174,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
       disabled={false} 
       onPress={ () => saveQROrder((item))
       }>
-      Save
+      {langPack.receivedQROrderListLayout_list_btn_save}
     </Button>
     </>
   );
@@ -189,7 +189,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         setCurrentEditingOrder(item)
         setDeleteArchivedOrderConfirmModalVisible(true)
       }}>
-      Delete
+      {langPack.receivedQROrderListLayout_list_btn_delete}
     </Button>
     <Button 
       size='tiny' 
@@ -197,7 +197,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
       disabled={false} 
       onPress={ () => null
       }>
-      Refund
+      {langPack.receivedQROrderListLayout_list_btn_refund}
     </Button>
     </>
   );
@@ -591,6 +591,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         <QROrderViewCard 
           item={currentEditingOrder} 
           deleteOrderHandler={deleteQROrderItem}
+          langPack={langPack}
         />
       </Modal>
       <Modal
@@ -601,6 +602,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         <QROrderViewCard 
           item={currentEditingOrder} 
           deleteOrderHandler={deleteArchivedQROrderItem}
+          langPack={langPack}
         />
       </Modal>
       <Modal
@@ -609,11 +611,11 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         onBackdropPress={() => setDeleteOrderConfirmModalVisible(false)}
       >
         <Text category='h5'>
-          Delete an order. You sure?
+          {langPack.receivedQROrderListLayout_askDelete_ReceivedOrder}
         </Text>
         <Button
           onPress={ () => deleteQROrderItem(currentEditingOrder)}>
-          DELETE
+          {langPack.receivedQROrderListLayout_deleteButton_Received}
         </Button>
       </Modal>
 
@@ -623,11 +625,11 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
         onBackdropPress={() => setDeleteArchivedOrderConfirmModalVisible(false)}
       >
         <Text category='h5'>
-          Delete an archived order. You sure?
+          {langPack.receivedQROrderListLayout_askDelete_ArchivedOrder}
         </Text>
         <Button
           onPress={ () => deleteArchivedQROrderItem(currentEditingOrder)}>
-          DELETE
+          {langPack.receivedQROrderListLayout_deleteButton_Archived}
         </Button>
       </Modal>
       <Layout>
@@ -636,7 +638,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
           level='1'
         >
           <Text category='h5' style={styles.title}>
-            Received Orders
+            {langPack.receivedQROrderListLayout_title_receivedOrders}
           </Text>
           <Button
             style={styles.addItemButton}
@@ -657,7 +659,7 @@ export const ReceivedQROrderListLayout = (): JSX.Element => {
           level='1'
         >
           <Text category='h5' style={styles.title}>
-            Archived Orders
+            {langPack.receivedQROrderListLayout_title_archivedOrders}
           </Text>
           
         </Layout>
