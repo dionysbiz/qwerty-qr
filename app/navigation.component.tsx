@@ -45,7 +45,7 @@ import { Spinner } from '@ui-kitten/components';
 import { Link, Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 
-
+import { IListUser, IListUserType, UserSettingsSchema} from './src/realm/UserSettings'
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -64,6 +64,7 @@ export const AppNavigator = (): JSX.Element => {
   const [currentAccount, setCurrentAccount] = useState("")
   const [currentConnected, setCurrentConnected] = useState(false)
   const [permission, requestPermission] = useCameraPermissions();
+  const [userSettings, setUserSettings] = useState({});
   
 
 
@@ -80,6 +81,111 @@ export const AppNavigator = (): JSX.Element => {
     readOnlyCalls,
     connected,
   } = useSDK();
+
+  useEffect(() => {
+    //const realm = new Realm({ schema: [OfflineQRItemSchema] });
+    console.log("useEffect load user setting")
+    setTimeout(function (){loadUserSettings()}, 2000)
+    
+    // Cleanup function to close Realm
+    /*
+    return () => {
+      if (realm && !realm.isClosed) {
+        realm.close();
+      }
+    };
+    */
+  }, [])
+
+  const createUpdateUserSettings = (
+    id: string,
+    userName: string,
+    deliverAddress: string,
+    langPref: string,
+  ) => {
+    let realm = new Realm({schema: [UserSettingsSchema]});
+    
+    console.log("User to be created/update")
+    console.log("id",id)
+    console.log("userName",userName)
+    console.log("deliverAddress",deliverAddress)
+    console.log("langPref",langPref)
+
+    // Force id = 1
+    if (id==="") {
+      realm.write(() => {
+        let item = realm.create('UserSettings', {
+          id: '1',
+          name:  userName,
+          deliverAddress: deliverAddress,
+          langPref: langPref,
+          //dateCreate: dateCreate,
+          //dateUpdate: dateUpdate,
+        });
+      });
+    } else {
+      const objectToUpdate = realm.objectForPrimaryKey("UserSettings", '1');
+      realm.write(() => {
+        console.log(userName)
+        objectToUpdate.name= userName
+        objectToUpdate.deliverAddress= deliverAddress
+        objectToUpdate.langPref= langPref
+        //objectToUpdate.dateCreate= dateCreate
+        //objectToUpdate.dateUpdate= dateUpdate
+      });
+    }
+    
+    //write to local Database
+    
+    loadUserSettings()
+  }
+
+  const loadUserSettings = () => {
+    console.log("loadUserSettings");
+    //let realm = new Realm({schema: [OfflineQRItemSchema]});
+    let data = [{name: 'FirstItemname', deliverAddress: 'DescripTioN', langPref: 'en'}]
+    data=[]
+
+    Realm.open({schema: [UserSettingsSchema]})
+    .then(realm => {
+      console.log("open relm");
+      // ... use the realm instance to read and modify data
+      let realmUserList = realm.objects('UserSettings')
+      console.log(realmUserList);
+      for (let p of realmUserList) {
+        let user:IListUser = {
+          id: String(p.id), 
+          name: String(p.name), 
+          deliverAddress: String(p.deliverAddress),
+          langPref: String(p.langPref),
+          
+        }
+        data.push(user)
+      }
+      
+      
+      if (!realm.isClosed) {
+        realm.close();
+        console.log("Realm instance has been closed.");
+      }
+    }).then(() => {
+      console.log("Check user settings");
+      console.log(data[0]);
+      console.log("id",data[0].id)
+      console.log("userName",data[0].name)
+      console.log("deliverAddress",data[0].deliverAddress)
+      console.log("langPref",data[0].langPref)
+
+      //setUserList(data)
+      setUserSettings(data[0])
+      handleLangChange(data[0].langPref)
+    })
+
+    
+    
+    //realm.close();
+    //console.log("Realm Close at loadUserSettings")
+  }
   
   // ---------------Style Sheets---------------
   const backgroundStyle = {
@@ -388,8 +494,6 @@ export const AppNavigator = (): JSX.Element => {
   } else {
     //sdk?.terminate();
   } 
-
-  
   
   return( 
     <>
@@ -406,14 +510,16 @@ export const AppNavigator = (): JSX.Element => {
          
       
       <TopNavbar 
-        onOpenSidebar={() => setNavbarOpen(true)} 
+        onOpenSidebar={() => setNavbarOpen(true)}
         onConnect={connectWithMetamask}
-        onAddChain={addChain} 
-        onChangeLang={handleLangChange} 
+        onAddChain={addChain}
+        onChangeLang={handleLangChange}
+        userSettings={userSettings}
         langPack={langPack}
         useSDKchainID={currentChainId}
         useSDKConnected={currentConnected}
-        useSDKAccount={currentAccount}
+        useSDKAccount={currentAccount} 
+        saveUserSettingsHandler={createUpdateUserSettings}      
       />
       <NavigationIndependentTree>
 
