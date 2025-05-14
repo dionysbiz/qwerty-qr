@@ -35,7 +35,7 @@ const QROrderSchema = {
   properties: {
     id: 'string',
     onScreenIdx: 'int',
-    name:  'string',
+    name: 'string',
     crypto_name_short: 'string',
     crypto_contract_addr: 'string',
     crypto_chain_id: 'string',
@@ -51,7 +51,7 @@ const ArchivedQROrderSchema = {
   primaryKey: 'id',
   properties: {
     id: 'string',
-    name:  'string',
+    name: 'string',
     crypto_name_short: 'string',
     crypto_contract_addr: 'string',
     crypto_chain_id: 'string',

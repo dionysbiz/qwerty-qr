@@ -51,6 +51,13 @@ const en = {
   qROrderViewCard_button_delete: 'DELETE Order',
   qROrderViewCard_button_confirmdelete: 'CONFIRM DELETE',
 
+  userSettingEditCard_name: 'Enter your Nickname',
+  userSettingEditCard_deilveryAddress: 'Enter your delivery address',
+  userSettingEditCard_savebutton: 'Save',
+  userSettingEditCard_topMsg: 'For better user experience, Please enter your nickname & delivery address here.',
+  userSettingEditCard_topMsg2: 'This information will only stored locally.',
+  userSettingEditCard_topMsg3: 'We do not recommend using your real name or address.',
+  userSettingEditCard_topMsg4: '',
 };
 
 export default en;

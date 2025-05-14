@@ -21,6 +21,8 @@ import { useSDK } from '@metamask/sdk-react';
 //import Donationbar from './Donationbar';
 //import AccountPopover from './AccountPopover';
 import { LanguagePopover2 } from './LanguagePopover2';
+import { MenuPopover } from './MenuPopover';
+
 import { MetamaskConnectLogo } from './MetamaskConnectLogo';
 import { IconAnimationRegistry } from '@ui-kitten/components/ui/icon/iconAnimation';
 
@@ -30,14 +32,16 @@ export type Props = {
   onOpenSidebar: any,
   onConnect: any,
   onAddChain: any,
+  saveUserSettingsHandler: any,
   onChangeLang: any,
+  userSettings: any,
   langPack: any,
   useSDKchainID: string,
   useSDKConnected: any,
   useSDKAccount: string
 };
 
-export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain, onChangeLang, langPack, useSDKchainID, useSDKConnected, useSDKAccount}): React.ReactElement => {
+export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain, saveUserSettingsHandler, onChangeLang, userSettings, langPack, useSDKchainID, useSDKConnected, useSDKAccount}): React.ReactElement => {
   
   /*
   const {
@@ -139,6 +143,20 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
     setMenuVisible(!menuVisible);
   };
 
+  const renderLeftActions = (): TouchableWebElement => (
+    
+    <>
+      
+      <MenuPopover 
+        saveUserSettingsHandler={saveUserSettingsHandler} 
+        onChangeLang={onChangeLang} 
+        userSettings={userSettings} 
+        langPack={langPack}
+      />
+
+    </>
+  );
+
   const renderRightActions = (): TouchableWebElement => (
     
     <>
@@ -219,6 +237,7 @@ export const TopNavbar: React.FC<Props> = ({onOpenSidebar, onConnect, onAddChain
           ) : (
             (langPack.topNavBar_notconnected)
           )}
+        accessoryLeft={renderLeftActions}
         accessoryRight={renderRightActions2}
       />
     </Layout>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useRef, useState, useEffect } from 'react';
-import { StyleSheet, StatusBar, SafeAreaView, useColorScheme, View, Modal  } from 'react-native';
+import { StyleSheet, StatusBar, SafeAreaView, useColorScheme, View  } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { withStyles } from '@ui-kitten/components';
-import { Button, Divider, Layout, Card, Text, useStyleSheet, StyleService,  List, ListItem } from '@ui-kitten/components';
+import { Button, Divider, Layout, Card, Text, useStyleSheet, StyleService,  List, ListItem, Modal } from '@ui-kitten/components';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { languagesList } from '../translate';
 
@@ -531,9 +531,11 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
       <AIAssistant />
       
       <Divider />
-
+            
+      
       <Layout level='1' style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', padding: 10, maxHeight: 90}}>
         <Layout level='1' style={{justifyContent: 'center', alignItems: 'center' }}>
+          {/*
           <Button style={evastyles.button} onPress={() => sendTestOrder()}>
             Token Purchase Record
           </Button>
@@ -542,13 +544,14 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
           <Button style={evastyles.button} onPress={() => setLanguageModalVisible(true)}>
             {langPack.button_language}
           </Button>
+          */}
         </Layout>
       </Layout>
-      <Layout level='1' style={{ flex: 1, flexDirection: 'row', maxHeight: 40}}>
+      
+      <Layout level='1' style={{ flex: 1, flexDirection: 'row', maxHeight: 50}}>
 
       </Layout>
-
-      <LanguageList/>
+      
 
     </SafeAreaView>
     </>

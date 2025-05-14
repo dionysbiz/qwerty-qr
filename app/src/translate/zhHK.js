@@ -51,6 +51,13 @@ const zhHK = {
   qROrderViewCard_button_delete: '刪除訂單',
   qROrderViewCard_button_confirmdelete: '確定刪除',
 
+  userSettingEditCard_name: '用戶暱稱',
+  userSettingEditCard_deilveryAddress: '送貨地址',
+  userSettingEditCard_savebutton: '儲存',
+  userSettingEditCard_topMsg: '為提高用戶體驗請輸入您的用戶暱稱及送貨地址',
+  userSettingEditCard_topMsg2: '請輸入您的用戶暱稱及送貨地址',
+  userSettingEditCard_topMsg3: '請注意，這些資料僅用於本地存儲',
+  userSettingEditCard_topMsg4: '但我們不建議您使用真實姓名或地址',
 };
 
 export default zhHK;

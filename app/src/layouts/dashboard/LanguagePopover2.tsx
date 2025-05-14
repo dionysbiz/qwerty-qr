@@ -6,7 +6,7 @@ import {
   OverflowMenu,
   TopNavigation,
   TopNavigationAction,
-  Button, Icon, IconElement, IndexPath, Layout, Spinner
+  Button, Icon, IconElement, IndexPath, Layout, Spinner, Modal
 } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 
@@ -130,7 +130,7 @@ export const LanguagePopover2: React.FC<Props> = ({ onChangeLang }): React.React
   //onClick={() => handleClose(option.value, index)}
 
   return (
-    
+    <>
       <OverflowMenu
         anchor={renderMenuAction}
         visible={languageMenuVisible}
@@ -146,6 +146,9 @@ export const LanguagePopover2: React.FC<Props> = ({ onChangeLang }): React.React
           />
         ))}
       </OverflowMenu>
+      
+    </>
+      
     
   );
 }
