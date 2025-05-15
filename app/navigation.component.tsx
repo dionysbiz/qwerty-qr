@@ -356,8 +356,16 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='BuyCryptoScreen' component={() =><BuyCryptoScreen navigation handleLangChange={handleLangChange} langPack={langPack}/>} />
-          <Stack.Screen name='PaymentScreen' component={() => <PaymentScreen route navigation/>}/>
+          <Stack.Screen 
+            name='BuyCryptoScreen' 
+            //component={() =><BuyCryptoScreen handleLangChange={handleLangChange} langPack={langPack}/>} 
+            component={ BuyCryptoScreen }
+            initialParams={{
+              handleLangChange: {handleLangChange},
+              langPack: {langPack}
+            }}
+          />
+          <Stack.Screen name='PaymentScreen' component={PaymentScreen}/>
         </Stack.Navigator>
     )
     //navigation={MyStack}
