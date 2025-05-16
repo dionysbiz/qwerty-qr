@@ -58,6 +58,23 @@ const en = {
   userSettingEditCard_topMsg2: 'This information will only stored locally.',
   userSettingEditCard_topMsg3: 'We do not recommend using your real name or address.',
   userSettingEditCard_topMsg4: '',
+
+  qrscanner_askConfirm: 'Confirm to buy the item',
+  qrscanner_askConfirm_itemName: 'Item Name',
+  qrscanner_askConfirm_itemPrice: 'Price',
+  qrscanner_askConfirm_receiverAddr: 'Receiver Wallet Address',
+  qrscanner_askConfirm_btn_confirm: 'Confirm',
+  qrscanner_askConfirm_btn_cancel: 'Cancel',
+
+  qrscanner_confirming_msg1: 'Processing..',
+  qrscanner_confirming_msg2: 'Please wait until confirmation from Metamask',
+  qrscanner_confirming_msg3: 'The screen may go back & forward a few times',
+
+  qrscanner_fail_msg1: 'Transaction fail',
+  qrscanner_fail_msg2: 'Back to Home',
+
+  qrscanner_success_msg1: 'Transaction success',
+  qrscanner_success_msg2: 'Continue',
 };
 
 export default en;

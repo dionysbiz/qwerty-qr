@@ -54,10 +54,29 @@ const zhHK = {
   userSettingEditCard_name: '用戶暱稱',
   userSettingEditCard_deilveryAddress: '送貨地址',
   userSettingEditCard_savebutton: '儲存',
-  userSettingEditCard_topMsg: '為提高用戶體驗請輸入您的用戶暱稱及送貨地址',
+  userSettingEditCard_topMsg: '為提高用戶體驗，請輸入您的用戶暱稱及送貨地址',
   userSettingEditCard_topMsg2: '請輸入您的用戶暱稱及送貨地址',
   userSettingEditCard_topMsg3: '請注意，這些資料僅用於本地存儲',
   userSettingEditCard_topMsg4: '但我們不建議您使用真實姓名或地址',
+
+  qrscanner_askConfirm: '請確定付款',
+  qrscanner_askConfirm_itemName: '商品名稱',
+  qrscanner_askConfirm_itemPrice: '價格',
+  qrscanner_askConfirm_receiverAddr: '收款人錢包地址',
+  qrscanner_askConfirm_btn_confirm: '確定',
+  qrscanner_askConfirm_btn_cancel: '取消',
+
+  qrscanner_confirming_msg1: '處理中..',
+  qrscanner_confirming_msg2: '請留意Metamask確認信息',
+  qrscanner_confirming_msg3: '畫面或會來回跳動數次，請安心等待',
+
+  qrscanner_fail_msg1: '交易失敗',
+  qrscanner_fail_msg2: '返回主頁',
+
+  qrscanner_success_msg1: '交易成功',
+  qrscanner_success_msg2: '繼續',
+
+
 };
 
 export default zhHK;

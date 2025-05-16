@@ -1,5 +1,5 @@
 import { Camera, CameraView } from "expo-camera";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
   AppState,
   Linking,
@@ -7,7 +7,9 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  View
+  View,
+  TouchableOpacity,
+  BackHandler
 } from "react-native";
 import * as eva from '@eva-design/eva';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
@@ -24,6 +26,7 @@ import { url_local } from '../src/properties/urls_local'
 import { url_dev } from '../src/properties/urls_dev'
 
 import DeviceInfo from 'react-native-device-info'
+import FontAwesomeIcon from '@expo/vector-icons/FontAwesome5';
 
 
 var url:any = ""
@@ -54,29 +57,21 @@ const qrNull = {
 }
 
 export default function Home(navigation) {
+  const router = useRouter(); // Initialize the router
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
   const params = useLocalSearchParams();
   const { walletAddr } = params;
+  const langPack = params.langPack ? JSON.parse(params.langPack) : null; // Parse langPack
   // ---------------State variables---------------
   
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [waitingModalVisible, setWaitingModalVisible] = useState(false);
+  const [failModalVisible, setFailModalVisible] = useState(false);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
-  
   const [qrData, setQrData ] = useState(qrNull);
-/*
-  const {
-    sdk,
-    provider: ethereum,
-    status,
-    chainId,
-    account,
-    balance,
-    readOnlyCalls,
-    connected,
-  } = useSDK();
-   */
+
 
   // ---------------Style Sheets---------------
 
@@ -84,17 +79,22 @@ export default function Home(navigation) {
 
   // ---------------onPress Handler---------------
 
-  /*
-  const connect = async () => {
-    try {
-      const accounts = (await sdk?.connect()) as string[];
-      console.log('accounts', accounts);
-      console.log('account', account);
-    } catch (e) {
-      console.log('ERROR', e);
-    }
+  const handleBackPress = () => {
+    router.back(); // Navigate back to the previous screen
+    return true; // Prevent default behavior
   };
-  */
+
+  const handleTest = () => {
+    setFailModalVisible(true); // Navigate back to the previous screen
+    return true; // Prevent default behavior
+  };
+  
+
+  // Add the back button listener
+  const backHandler = BackHandler.addEventListener(
+    "hardwareBackPress",
+    handleBackPress
+  );
 
   const onTransactionSuccess = async(txHash) => {
     qrLock.current = false;
@@ -177,6 +177,13 @@ export default function Home(navigation) {
   const onCancel = async () => {
     setConfirmModalVisible(false)
     qrLock.current = false;
+  }
+
+  const onBack = async () => {
+    setFailModalVisible(false)
+    setSuccessModalVisible(false)
+    qrLock.current = false;
+    handleBackPress()
   }
 
   const onConfirmTransaction = () => {
@@ -371,20 +378,53 @@ export default function Home(navigation) {
           }
         }}
       />
-      <Overlay />
+
+      {Platform.OS === "ios" ? 
+      //Back button for iOS only
+      <TouchableOpacity 
+        onPress={()=>{handleBackPress()}}
+        activeOpacity={1}
+        //underlayColor="#DDDDDD"
+        style={ {zIndex: 10, elevation: 10, 
+          width: 50,
+          height: 50, 
+        }}>
+        <View style={{ position: "absolute", top: 50, left: 20,  }}>
+        <FontAwesomeIcon name="home" size={25} color="white" />
+        </View>
+      </TouchableOpacity>
+      : null}
+
+      {/*
+      <TouchableOpacity 
+        onPress={()=>{handleTest()}}
+        activeOpacity={1}
+        //underlayColor="#DDDDDD"
+        style={ {zIndex: 10, elevation: 10, 
+          width: 50,
+          height: 50, 
+        }}>
+        <View style={{ position: "absolute", top: 50, left: 20,  }}>
+        <FontAwesomeIcon name="font-awesome" size={25} color="white" />
+        </View>
+      </TouchableOpacity>
+      */}
+
       <Modal
         visible={confirmModalVisible}
         backdropStyle={styles.confirmBackdrop}
         //onBackdropPress={() => setConfirmModalVisible(false)}
       >
-        <Text>Confirm to buy the item</Text>
+       
+      <Overlay />
+        <Text>{langPack.qrscanner_askConfirm}</Text>
         <Layout
           style={styles.containerInfo}
           level='1'
         >
-        <Text>Item Name: {qrData.name}</Text>
-        <Text>Price: {qrData.crypto_price_ezread} {qrData.crypto_name_short}</Text>
-        <Text>Receiver Wallet Address:</Text>
+        <Text>{langPack.qrscanner_askConfirm_itemName}: {qrData.name}</Text>
+        <Text>{langPack.qrscanner_askConfirm_itemPrice}: {qrData.crypto_price_ezread} {qrData.crypto_name_short}</Text>
+        <Text>{langPack.qrscanner_askConfirm_receiverAddr}:</Text>
         <Text>{qrData.toWalletAddr.substring(0, 25)}..</Text>
         </Layout>
         <Layout
@@ -393,10 +433,10 @@ export default function Home(navigation) {
           justifyContent='center'
         >
           <Button style={styles.button} onPress={() => onConfirmTransaction()}>
-            Confirm
+            {langPack.qrscanner_askConfirm_btn_confirm}
           </Button>
           <Button style={styles.button} onPress={() => onCancel()}>
-            Cancel
+            {langPack.qrscanner_askConfirm_btn_cancel}
           </Button>
         </Layout>
       </Modal>
@@ -407,9 +447,35 @@ export default function Home(navigation) {
       >
         <View style={styles.loading}>
           <Spinner />
-          <Text>Processing..</Text>
-          <Text>Please wait until confirmation from Metamask</Text>
-          <Text>The screen may go back & forward a few times</Text>
+          <Text>{langPack.qrscanner_confirming_msg1}</Text>
+          <Text>{langPack.qrscanner_confirming_msg2}</Text>
+          <Text>{langPack.qrscanner_confirming_msg3}</Text>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={failModalVisible}
+        backdropStyle={styles.waitingBackdrop}
+        //onBackdropPress={() => setConfirmModalVisible(false)}
+      >
+        <View style={styles.loading}>
+          <Text>{langPack.qrscanner_fail_msg1}</Text>
+          <Button style={styles.button} onPress={() => onBack()}>
+            {langPack.qrscanner_fail_msg2}
+          </Button>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={successModalVisible}
+        backdropStyle={styles.waitingBackdrop}
+        //onBackdropPress={() => setConfirmModalVisible(false)}
+      >
+        <View style={styles.loading}>
+          <Text>{langPack.qrscanner_success_msg1}</Text>
+          <Button style={styles.button} onPress={() => onBack()}>
+            {langPack.qrscanner_success_msg2}
+          </Button>
         </View>
       </Modal>
       
