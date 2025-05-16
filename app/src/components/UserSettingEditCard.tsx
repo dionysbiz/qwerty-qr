@@ -181,7 +181,7 @@ const evastyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   modalcontainer: {
-    width: 360,
+    width: 350,
     //flex: 1,
     //flexDirection: 'column',
     //alignItems: 'center',
