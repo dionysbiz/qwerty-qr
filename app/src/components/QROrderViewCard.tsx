@@ -92,6 +92,7 @@ export const QROrderViewCard = ({ item, deleteOrderHandler, langPack }): React.R
   //const [placementIndex, setPlacementIndex] = React.useState(new IndexPath(1, 0));
   //const placement = placements[placementIndex.row];
 
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -102,6 +103,7 @@ export const QROrderViewCard = ({ item, deleteOrderHandler, langPack }): React.R
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
   
 
   // ---------------Visual Items--------------- 
