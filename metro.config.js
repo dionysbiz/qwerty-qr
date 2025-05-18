@@ -24,6 +24,14 @@ config.resolver.extraNodeModules = {
     */
 };
 
+const { transformer } = config;
+
+config.transformer = {
+    ...transformer,
+    babelTransformerPath: require.resolve("react-native-qrcode-svg/textEncodingTransformation")
+  };
+
 config.resolver.unstable_enablePackageExports= true,
+
 
 module.exports = config;

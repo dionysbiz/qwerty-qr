@@ -23,11 +23,13 @@ const zhHK = {
   offlineItemEditCard_dateCreated: '創建日期',
   offlineItemEditCard_dateUpdated: '更新日期',
   offlineQRMenuListLayout_askConfirmDelete: '確定刪除?',
+  offlineQRMenuListLayout_askConfirmDelete2: '此動作無法復原',
   offlineQRMenuListLayout_delete: '刪除',
   offlineQRMenuListLayout_item_crypto: '加密貨幣',
   offlineQRMenuListLayout_item_price: '價格',
   offlineQRMenuListLayout_item_desc: '商品描述',
   offlineQRMenuListLayout_button_exportQR: '導出QR碼',
+  offlineQRMenuListLayout_exportQR_saved: '已儲存至相簿',
 
   receivedQROrderListLayout_title_receivedOrders: '已接收訂單',
   receivedQROrderListLayout_title_archivedOrders: '已存檔訂單',

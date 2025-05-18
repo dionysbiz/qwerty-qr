@@ -2,6 +2,8 @@ import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
 import { StyleSheet, Alert, View } from 'react-native';
+//import { CameraRoll , ToastAndroid } from "react-native"
+import RNFS from "react-native-fs"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
 import { OfflineItemEditCard } from '../components/OfflineItemEditCard'
@@ -9,6 +11,9 @@ import {
   QrCodeSvg,
   plainRenderer,
 } from 'react-native-qr-svg';
+import ViewShot, {captureRef} from "react-native-view-shot";
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+
 import { useSDK } from '@metamask/sdk-react';
 import Web3 from 'web3';
 
@@ -67,11 +72,13 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
   const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
   const [deleteItemConfirmModalVisible, setDeleteItemConfirmModalVisible] = useState(false);
   const [qRCodeModalVisible, setQRCodeModalVisible] = useState(false);
+  const [qRCodeSavedModalVisible, setQRCodeSavedModalVisible] = useState(false);
+
   const [currentEditingItem, setCurrentEditingItem] = useState(itemNull);
   const [currentQRItemJSON, setCurrentQRItemJSON] = useState("");
   const [qRItemMode, setQRItemMode] = useState("create");
 
-
+  const qrRef = useRef();
 
   const {
     sdk,
@@ -116,7 +123,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
       disabled={false} 
       onPress={ () => testOrder(item)
       }>
-      {langPack.offlineQRMenuListLayout_itemlist_testOrder}
+      {langPack.offlineQRMenuListLayout_itemlist_testorder}
     </Button>
     <Button 
       size='tiny' 
@@ -145,6 +152,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
 
   const renderItem = ({ item, index }: { item: IListItem; index: number }): JSX.Element => (
     <ListItem
+      key={item.id}
       title={`${item.name} `}
       description={ `${item.description.length > 20 ? (item.description.substring(0,20)+"..") : item.description } `}
       accessoryLeft={renderItemIcon}
@@ -484,6 +492,39 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
     }
   };
 
+  const saveQrToDisk = async (qrRef: React.RefObject<View>, filename:string) => {
+    console.log(qrRef)
+    
+    try {
+      if (!qrRef.current) {
+        throw new Error('QR code reference is not available.');
+      }
+  
+      // Capture the QR code view as an image
+      const uri = await captureRef(qrRef, {
+        format: 'png',
+        quality: 1.0,
+      });
+  
+      // Define file path
+      const filePath = `${RNFS.CachesDirectoryPath}/${filename}.png`;
+  
+      // Move the captured image to the file path
+      await RNFS.moveFile(uri, filePath);
+  
+      // Save to gallery
+      await CameraRoll.save(filePath, { type: 'photo' });
+  
+      console.log('QR code saved to gallery!');
+      setQRCodeModalVisible(false)
+      setQRCodeSavedModalVisible(true)
+    } catch (error) {
+      console.error('Error saving QR code:', error);
+      setQRCodeModalVisible(false)
+      setQRCodeSavedModalVisible(true)
+    }
+  };
+
   
 
   const SIZE = 170;
@@ -509,7 +550,13 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
         onBackdropPress={() => setDeleteItemConfirmModalVisible(false)}
       >
         <Text>
-          {langPack.offlineQRMenuListLayout_confirmDelete}
+          {langPack.offlineQRMenuListLayout_askConfirmDelete}
+        </Text>
+        <Text>
+          {langPack.offlineQRMenuListLayout_askConfirmDelete2}
+        </Text>
+        <Text>
+          
         </Text>
         <Button
         onPress={ () => deleteOfflineQRItem(currentEditingItem)}>
@@ -523,30 +570,44 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
         onBackdropPress={() => setQRCodeModalVisible(false)}
       >
         <View style={styles.qrroot}>
-          <View style={styles.qrcontent}>
-            <QrCodeSvg
-              style={styles.qr}
-              gradientColors={['#0800ff', '#ff0000']}
-              value={currentQRItemJSON}
-              frameSize={SIZE}
-            />
-            <Text category='h5'>
-              {currentEditingItem.name}
-            </Text> 
-            <Text>{langPack.offlineQRMenuListLayout_item_crypto}: {currentEditingItem.crypto_name_short}</Text>
-            <Text>{langPack.offlineQRMenuListLayout_item_price}: {currentEditingItem.crypto_price_ezread}</Text>
-            <Text>{langPack.offlineQRMenuListLayout_item_desc}: {currentEditingItem.description}</Text>
-            <Text>  </Text>
-            <Button 
-              size='large' 
-              disabled={false} 
-              >
-              {langPack.offlineQRMenuListLayout_button_exportQR}
-            </Button>
-          </View>
+          <ViewShot ref={qrRef} options={{ fileName: currentEditingItem.name, format: "png", quality: 1.0 }}>
+            <View style={styles.qrcontent} >
+              
+              <QrCodeSvg
+                style={styles.qr}
+                gradientColors={['#0800ff', '#ff0000']}
+                value={currentQRItemJSON}
+                frameSize={SIZE}
+              />
+              <Text category='h5'>
+                {currentEditingItem.name}
+              </Text> 
+              <Text>{langPack.offlineQRMenuListLayout_item_crypto}: {currentEditingItem.crypto_name_short}</Text>
+              <Text>{langPack.offlineQRMenuListLayout_item_price}: {currentEditingItem.crypto_price_ezread}</Text>
+              <Text>{langPack.offlineQRMenuListLayout_item_desc}: {currentEditingItem.description}</Text>
+              
+              <Text>  </Text>
+              
+            </View>
+          </ViewShot>
+          <Button 
+            size='large' 
+            disabled={false} 
+            onPress={() => setTimeout(() => saveQrToDisk(qrRef, currentEditingItem.name), 300)}
+            >
+            {langPack.offlineQRMenuListLayout_button_exportQR}
+          </Button>
         </View> 
 
 
+      </Modal>
+
+      <Modal
+        visible={qRCodeSavedModalVisible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setQRCodeSavedModalVisible(false)}
+      >
+        <Text>{langPack.offlineQRMenuListLayout_exportQR_saved}</Text>
       </Modal>
 
       <Layout>

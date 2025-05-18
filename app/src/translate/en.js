@@ -23,11 +23,13 @@ const en = {
   offlineItemEditCard_dateCreated: 'Date Created',
   offlineItemEditCard_dateUpdated: 'Last Updated',
   offlineQRMenuListLayout_askConfirmDelete: 'Confirm to delete?',
+  offlineQRMenuListLayout_askConfirmDelete2: 'This action CANNOT be reverted',
   offlineQRMenuListLayout_delete: 'DELETE',
   offlineQRMenuListLayout_item_crypto: 'Crypto',
   offlineQRMenuListLayout_item_price: 'Price',
   offlineQRMenuListLayout_item_desc: 'Description',
   offlineQRMenuListLayout_button_exportQR: 'Export QR Code',
+  offlineQRMenuListLayout_exportQR_saved: 'QR code is saved to Album',
 
   receivedQROrderListLayout_title_receivedOrders: 'Received Orders',
   receivedQROrderListLayout_title_archivedOrders: 'Archived Orders',
