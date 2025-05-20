@@ -3,7 +3,8 @@ import { useRef, useState, useEffect } from 'react';
 import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
 import { StyleSheet, Alert, View } from 'react-native';
 //import { CameraRoll , ToastAndroid } from "react-native"
-import RNFS from "react-native-fs"
+//import RNFS from "react-native-fs"
+import * as FileSystem from 'expo-file-system';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
 import { OfflineItemEditCard } from '../components/OfflineItemEditCard'
@@ -13,6 +14,8 @@ import {
 } from 'react-native-qr-svg';
 import ViewShot, {captureRef} from "react-native-view-shot";
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+import { useIsFocused } from '@react-navigation/native';
+
 
 import { useSDK } from '@metamask/sdk-react';
 import Web3 from 'web3';
@@ -65,7 +68,7 @@ const itemNull:IListItem = {
   dateUpdate: null,
 }
 
-export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
+export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
@@ -79,6 +82,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
   const [qRItemMode, setQRItemMode] = useState("create");
 
   const qrRef = useRef();
+  //const isFocused = useIsFocused();
 
   const {
     sdk,
@@ -95,6 +99,15 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
     //const realm = new Realm({ schema: [OfflineQRItemSchema] });
     console.log("useEffect Menu LIst")
     setTimeout(function (){loadOfflineQRItem2List()}, 2000)
+
+    if (isFocused) {
+      console.log('OfflineQRMenuListLayout is focused');
+      // Perform actions when the screen is focused
+      setTimeout(function (){loadOfflineQRItem2List()}, 2000)
+    } else {
+      console.log('OfflineQRMenuListLayout is not focused');
+      // Perform actions when the screen is unfocused
+    }
     
     // Cleanup function to close Realm
     /*
@@ -104,7 +117,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
       }
     };
     */
-  }, [])
+  }, [isFocused])
 
   //
   const renderItemAccessory = (item): React.ReactElement => (
@@ -492,6 +505,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
     }
   };
 
+  
   const saveQrToDisk = async (qrRef: React.RefObject<View>, filename:string) => {
     console.log(qrRef)
     
@@ -505,13 +519,23 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
         format: 'png',
         quality: 1.0,
       });
-  
+      
+      
       // Define file path
-      const filePath = `${RNFS.CachesDirectoryPath}/${filename}.png`;
+      //const filePath = `${RNFS.CachesDirectoryPath}/${filename}.png`;
   
       // Move the captured image to the file path
-      await RNFS.moveFile(uri, filePath);
-  
+      //await RNFS.moveFile(uri, filePath);
+      
+
+      // Define file path
+      const filePath = `${FileSystem.cacheDirectory}${filename}.png`;
+
+      await FileSystem.moveAsync({
+        from: uri,
+        to: filePath,
+      });
+
       // Save to gallery
       await CameraRoll.save(filePath, { type: 'photo' });
   
@@ -524,6 +548,7 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
       setQRCodeSavedModalVisible(true)
     }
   };
+  
 
   
 
@@ -593,7 +618,8 @@ export const OfflineQRMenuListLayout = ({langPack}): JSX.Element => {
           <Button 
             size='large' 
             disabled={false} 
-            onPress={() => setTimeout(() => saveQrToDisk(qrRef, currentEditingItem.name), 300)}
+            //onPress={() => setTimeout(() => saveQrToDisk(qrRef, currentEditingItem.name), 300)}
+            onPress={() => null}
             >
             {langPack.offlineQRMenuListLayout_button_exportQR}
           </Button>
