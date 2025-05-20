@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
-import { StyleSheet, Alert, View } from 'react-native';
+import {StyleSheet, Alert, View } from 'react-native';
+
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
 import { useSDK } from '@metamask/sdk-react';
@@ -9,6 +10,8 @@ import { scanQROrders } from '../../src/utils/awsClient';
 import { QROrderViewCard } from '../components/QROrderViewCard'
 import { useSubscription } from '@apollo/client';
 import { MESSAGE_SUBSCRIPTION } from '../../src/utils/graphql/subscriptions'
+import { triggerTransactionv2 } from '../../src/utils/ethUtil';
+
 
 
 interface IListItem {
@@ -93,7 +96,7 @@ const kafka = new Kafka({
   */
 
 
-export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
+export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
@@ -106,12 +109,16 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
   const [currentViewingItem, setCurrentViewingItem] = useState(itemNull);
   const [currentEditingOrder, setCurrentEditingOrder] = useState(itemNull);
 
+  //const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
+
+
   const [topic, setTopic] = useState('testtopic');
   const { data, error } = useSubscription(MESSAGE_SUBSCRIPTION, {
     variables: { topic }, // Pass the topic parameter
   });
   //const [messages, setMessages] = useState([]);
 
+  
   const {
     sdk,
     provider: ethereum,
@@ -122,11 +129,46 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
     readOnlyCalls,
     connected,
   } = useSDK();
+  
+  /*
+  useEffect(() => {
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground');
+        // Reload the list of received orders when the app comes back to the foreground
+        loadOrderItem2List();
+      }
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+
+  }, [appState]);
+  */
+
+  useEffect(() => {
+
+    if (isFocused) {
+      console.log('ReceivedQROrderListLayout is focused');
+      // Perform actions when the screen is focused
+      loadOrderItem2List()
+
+    } else {
+      console.log('ReceivedQROrderListLayout is not focused');
+      // Perform actions when the screen is unfocused
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     //const realm = new Realm({ schema: [QROrderSchema,ArchivedQROrderSchema] });
     console.log("useEffect QR Order")
 
+    // GraphQL subscription
     const topicName = 'qrItemOrder-'+account
     console.log('Listen to kafka topic: '+topicName)
     setTopic(topicName)
@@ -137,6 +179,7 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
       //setMessages((prevMessages) => [...prevMessages, data.messageStream]);
       addKafkaOrderItem2Realm(data.messageStream)
     }
+
     loadOrderItem2List()
     setTimeout(function (){loadArchivedOrderItem2List()}, 1000)
 
@@ -164,7 +207,17 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
       size='tiny' 
       style={styles.accessoriesButton}
       disabled={false} 
-      onPress={ () => null
+      onPress={ () => {
+        triggerTransactionv2(
+          item.crypto_chain_id, 
+          item.crypto_contract_addr, 
+          item.crypto_name_short, 
+          walletAddr, 
+          item.fromAddr, //Buyers address
+          item.crypto_price_ezread, 
+          null, //onTransactionSuccess
+          null) //onTransactionFail
+        }
       }>
       {langPack.receivedQROrderListLayout_list_btn_refund}
     </Button>
@@ -235,7 +288,7 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
   );
 
   const onClickItemOntheList = (item:IListItem) => {
-    console.log(item.order_id)
+    console.log("item clicked", item)
     setCurrentViewingItem(item)
     setCurrentEditingOrder(item)
     setOrderDetailModalVisible(true)
@@ -266,7 +319,8 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
       "0x1",
       randomnum.toString(),
       new Date(),
-      account,
+      //walletAddr,
+      "0x9B40d31fdc6Ef74D999AFDdeF151f8E864391cfF",
       "0xae9b0835a25d35d3dcf614666ea40437964c41cd1a31645a7a42b6673ecbdefc"
     )
   }
@@ -442,7 +496,7 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
   /*
   const loadOrderItem2ListFromAWS = async() => {
     
-    const jsonStr = await scanQROrders(account)
+    const jsonStr = await scanQROrders(walletAddr)
     //const receivedQRorderListJSON = JSON.parse(jsonStr)
     console.log(jsonStr)
     let receivedQRorderList = []
@@ -538,6 +592,9 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
     loadOrderItem2List()
     setTimeout(function (){loadArchivedOrderItem2List()}, 1000)
   }
+
+  const onConfirmRefund = () => {
+  }
   
 
   //--------------------------------------------
@@ -550,7 +607,7 @@ export const ReceivedQROrderListLayout = ({langPack}): JSX.Element => {
         method: 'eth_estimateGas',
         params: [
           {
-            from: account,
+            from: walletAddr,
             to: to,
             value: value
           }
