@@ -12,7 +12,7 @@ const en = {
 
   offlineQRMenuListLayout_title: 'QR Menu Items',
   offlineQRMenuListLayout_itemlist_showQR: 'QR Code',
-  offlineQRMenuListLayout_itemlist_testOrder: 'Test Order',
+  offlineQRMenuListLayout_itemlist_testorder: 'Test Order',
   offlineQRMenuListLayout_itemlist_delete: 'Delete',
   offlineQRMenuListLayout_itemEntry_itemName: 'Item\'s Name',
   offlineQRMenuListLayout_itemEntry_desc: 'Please enter item\'s description',
