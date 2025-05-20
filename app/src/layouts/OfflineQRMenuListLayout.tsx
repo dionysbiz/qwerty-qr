@@ -17,8 +17,8 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { useIsFocused } from '@react-navigation/native';
 
 
-import { useSDK } from '@metamask/sdk-react';
-import Web3 from 'web3';
+//import { useSDK } from '@metamask/sdk-react';
+//import Web3 from 'web3';
 
 interface IListItem {
   id: string,
@@ -68,7 +68,7 @@ const itemNull:IListItem = {
   dateUpdate: null,
 }
 
-export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => {
+export const OfflineQRMenuListLayout = ({langPack, walletAddr, currentChainId, isFocused} ): JSX.Element => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   const [itemList, setItemList] = useState<IListItem[] | []>([]);;
@@ -84,6 +84,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
   const qrRef = useRef();
   //const isFocused = useIsFocused();
 
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -94,7 +95,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
     readOnlyCalls,
     connected,
   } = useSDK();
-
+*/
   useEffect(() => {
     //const realm = new Realm({ schema: [OfflineQRItemSchema] });
     console.log("useEffect Menu LIst")
@@ -211,21 +212,21 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
       item.description,
       item.crypto_name_short,
       item.crypto_contract_addr,
-      chainId,
+      currentChainId,
       item.crypto_price_ezread,
       item.dateCreate,
       new Date(),
     )
     console.log("------Item to be insert to local DB------")
-    console.log(item.id)
-    console.log(itemList.length)
-    console.log(item.name)
-    console.log(item.description)
-    console.log(item.crypto_name_short)
-    console.log(item.crypto_contract_addr)
-    console.log(chainId)
-    console.log(item.crypto_price_ezread)
-    console.log(item.dateCreate)
+    console.log('item.id', item.id)
+    console.log('itemList.length', itemList.length)
+    console.log('item.name', item.name)
+    console.log('item.description',item.description)
+    console.log('item.crypto_name_short',item.crypto_name_short)
+    console.log('item.crypto_contract_addr',item.crypto_contract_addr)
+    console.log('currentChainId',currentChainId)
+    console.log('item.crypto_price_ezread',item.crypto_price_ezread)
+    console.log('item.dateCreate',item.dateCreate)
     
     setItemDetailModalVisible(false)
   }
@@ -239,7 +240,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
       crypto_contract_addr: item.crypto_contract_addr,
       crypto_chain_id: item.crypto_chain_id,
       crypto_price_ezread: item.crypto_price_ezread,
-      toWalletAddr: account
+      toWalletAddr: walletAddr
     }
     
     
@@ -375,7 +376,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
         method: 'eth_estimateGas',
         params: [
           {
-            from: account,
+            from: walletAddr,
             to: to,
             value: value
           }
@@ -419,7 +420,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
       console.log(qrData.name)
       console.log(qrData.crypto_name_short)
       console.log(qrData.crypto_contract_addr)
-      //console.log(item.chainId)
+      //console.log(item.currentChainId)
       console.log(qrData.crypto_price_ezread)
       //console.log(item.dateCreate)
     
@@ -432,7 +433,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
   //kubectl port-forward hardhatnetwork-dev-ddddc4fff-6bpfz -n hardhatnetwork-dev 8545:8545
   const sendTransaction = async (qr:any) => {
     try {
-      qr.toWalletAddr=account
+      qr.toWalletAddr=walletAddr
       console.log('qr', qr);
         const valueWei = Web3.utils.toWei(qr.crypto_price_ezread, 'ether')
         const valueGwei = Web3.utils.fromWei(valueWei, 'gwei')
@@ -450,7 +451,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
           params: [
             {
               to: '0x9B40d31fdc6Ef74D999AFDdeF151f8E864391cfF',
-              from: account,
+              from: walletAddr,
               //gas: gas,
               //data: '0x',
               value: valueWei,
@@ -468,7 +469,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
 
   const sendERC20Transaction = async (qr:any) => {
     try {
-      qr.toWalletAddr=account
+      qr.toWalletAddr=walletAddr
       console.log('qr', qr);
         const valueWei = Web3.utils.toWei(qr.crypto_price_ezread, 'ether')
         const valueGwei = Web3.utils.fromWei(valueWei, 'gwei')
@@ -489,7 +490,7 @@ export const OfflineQRMenuListLayout = ({langPack, isFocused} ): JSX.Element => 
           params: [
             {
               to: '0x9B40d31fdc6Ef74D999AFDdeF151f8E864391cfF',
-              from: account,
+              from: walletAddr,
               gas: gas,
               data: '0x',
               value: valueWei,

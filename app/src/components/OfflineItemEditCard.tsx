@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, IndexPath, Card, Text, Layout, Select, SelectItem, MenuItem, Input, OverflowMenu } from '@ui-kitten/components';
 import PropTypes from 'prop-types';
-import { useSDK } from '@metamask/sdk-react';
+//import { useSDK } from '@metamask/sdk-react';
 
 let TOKENLIST = []
 
@@ -74,9 +74,10 @@ export type Props = {
   item: any,
   closeHandler: any ,
   langPack: any,
+  currentChainId: string
 };
 
-export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.ReactElement => {
+export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentChainId }): React.ReactElement => {
   // ---------------State variables--------------- 
   const [currentLang, setCurrentLang] = useState("en");
   //const [itemDetailModalVisible, setItemDetailModalVisible] = useState(false);
@@ -102,6 +103,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.
   //const placement = placements[placementIndex.row];
   let displayValue = TOKENLIST[selectedTokenIndex.row];
 
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -112,6 +114,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
   
 
   // ---------------Visual Items--------------- 
@@ -143,7 +146,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.
     console.log(token)
     setSelectedTokenIndex(index)
     setItemCryptoContractAddr(token.contract_addr)
-    setItemCryptoChainId(chainId)
+    setItemCryptoChainId(currentChainId)
     setItemCryptoShort(token.name_short)
     setTokenShortDisplayValue(token.name_short)
     //toggleCHAINTOKENLIST()
@@ -244,13 +247,13 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack }): React.
         }}
       >
         {CHAINTOKENLIST.map((option, listIndex) => {
-          if (option.chainId === chainId) {
+          if (option.chainId === currentChainId) {
             //setTokenList(option)
             TOKENLIST = option
           }
           return (
 
-            option.chainId === chainId ? (
+            option.chainId === currentChainId ? (
               
               <>
               {option.crypto.map((it, index) => (

@@ -124,6 +124,7 @@ const btnstyle = StyleSheet.create({
 
 
 export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain, currentChainId }): React.ReactElement => {
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -134,6 +135,7 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain, cu
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
   
   // ---------------State variables--------------- 
 
@@ -192,9 +194,13 @@ export const MetamaskConnectLogo: React.FC<Props> = ({ onConnect, onAddChain, cu
       source={require('../../public/static/icons/MetaMask_Fox_notconnected.png')} />
   );
 
+  console.debug('currentChainId',currentChainId)
+  if (currentChainId==='' ||  !currentChainId || currentChainId==null ) {
+    console.debug('currentChainId is null',currentChainId)
+  }
   const MenuIcon = (props): IconElement => (
     <>
-        {connected ? (
+        {(currentChainId)? (
           <>
             <Button
               appearance='ghost'

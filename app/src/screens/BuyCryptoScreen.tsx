@@ -36,10 +36,12 @@ DeviceInfo.isEmulator().then((isEmulator) => {
 export type Props = {
   navigation: any,
   handleLangChange: any,
-  langPack: any
+  langPack: any,
+  walletAddr: any,
+  currentChainId: any,
 };
 
-export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JSX.Element => {
+export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack, walletAddr, currentChainId }) : JSX.Element => {
   // ---------------State variables---------------
   const [ethRate, setEthRate] = useState(0); 
   const [gasPrice, setGasPrice] = useState(0);
@@ -55,8 +57,10 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
   const [minTxFeeGwei, setMinTxFeeGwei] = useState(0);
   const [minTxFeeUSD, setMinTxFeeUSD] = useState(0);
 
+  const [isConnected2Metamask, setIsConnected2Metamask] = useState(false);
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
 
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -67,6 +71,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
     readOnlyCalls,
     connected,
   } = useSDK();
+   */
 
   const selectLanguage = (languageCode: string) => {
     console.log(`Selected language: ${languageCode}`);
@@ -165,7 +170,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
         style={styles.footerControl}
         size='small'
         onPress={navigatePayment}
-        disabled={!connected}
+        disabled={!currentChainId}
       >
         Buy our Crypto
       </Button>
@@ -187,7 +192,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
       
           navigatePayment
         }}
-        disabled={!connected}
+        disabled={!currentChainId}
       >
         Buy
       </Button>
@@ -207,7 +212,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
         onPress={ () => {
           navigatePayment
         }}
-        disabled={!connected}
+        disabled={!currentChainId}
       >
         Buy
       </Button>
@@ -227,7 +232,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
         onPress={ () => {
           navigatePayment
         }}
-        disabled={!connected}
+        disabled={!currentChainId}
       >
         Buy
       </Button>
@@ -245,7 +250,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
         style={styles.footerControl}
         size='small'
         onPress={ () => {navigatePayment}}
-        disabled={!connected}
+        disabled={!currentChainId}
       >
         Buy
       </Button>
@@ -292,7 +297,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
       targetBlockExplorerUrls: targetBlockExplorerUrls,
       targetNativeCurrency: targetNativeCurrency,
       targetRpcUrls: targetRpcUrls,
-      airdropReceiverAddr: account
+      airdropReceiverAddr: walletAddr
     });
   };
 
@@ -471,13 +476,14 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
     //promiseHttpGasPrice()
     getHttpEthRate()
 
-    { account!=='' ? 
-      //setConnect2Chain(true)
-      console.log()
-      :
-      //setConnect2Chain(false)
-      console.log()
+    console.debug('walletAddr',walletAddr)
+    if (walletAddr==='' ||  !walletAddr || walletAddr==null ) {
+      console.debug('walletAddr is null',walletAddr)
+      console.debug("======NOT yet connected to Metamask======")
+    } else {
+      console.log("======Connected to Metamask with: "+walletAddr+ " =========")
     }
+
   })
 
   return (
@@ -500,7 +506,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
               Min Tx Fee in Gwei: {minTxFeeGwei.toFixed(2)} Gwei /USD$ {minTxFeeUSD.toFixed(2)} 
             </Text>
           </Card>
-          { chainId==='0x1' ? 
+          { currentChainId==='0x1' ? 
           <>
             <Card
               style={styles.card}
@@ -512,7 +518,7 @@ export const BuyCryptoScreen = ({ navigation, handleLangChange, langPack }) : JS
               </Text>
             </Card>
           </>
-          : chainId==='0xa4b1' ?
+          : currentChainId==='0xa4b1' ?
           <>
             <Card
               style={styles.card}

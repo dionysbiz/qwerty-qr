@@ -15,7 +15,7 @@ import { Icon, IconElement, Tab, TabBar, TabBarProps } from '@ui-kitten/componen
 import { ApolloProvider } from '@apollo/client';
 import client  from '../components/apollo-client';
 
-export function ShopManagementScreen({ langPack, walletAddr }): JSX.Element {
+export function ShopManagementScreen({ langPack, walletAddr, currentChainId }): JSX.Element {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const styles = StyleSheet.create({
     shopManagement: {
@@ -45,7 +45,12 @@ USERS
       </Tab>
       */}
       <Tab title={langPack.shopManagementScreen_tabtitle_qrmenu}>
-        <OfflineQRMenuListLayout langPack={langPack} isFocused={selectedIndex === 0}/>
+        <OfflineQRMenuListLayout 
+          langPack={langPack}
+          walletAddr={walletAddr}
+          currentChainId={currentChainId} 
+          isFocused={selectedIndex === 0}
+        />
       </Tab>
       <Tab title={langPack.shopManagementScreen_tabtitle_receivedorder}>
 

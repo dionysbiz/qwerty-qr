@@ -362,7 +362,9 @@ export const AppNavigator = (): JSX.Element => {
             component={ BuyCryptoScreen }
             initialParams={{
               handleLangChange: {handleLangChange},
-              langPack: {langPack}
+              langPack: {langPack},
+              walletAddr: currentAccount,
+              currentChainId: currentChainId
             }}
           />
           <Stack.Screen name='PaymentScreen' component={PaymentScreen}/>
@@ -375,7 +377,7 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack} walletAddr={account}/>}/>
+          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack} walletAddr={account} currentChainId={currentChainId}/>}/>
           <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
           <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
           <Stack.Screen name='ReceivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>

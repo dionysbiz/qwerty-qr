@@ -118,7 +118,7 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
   });
   //const [messages, setMessages] = useState([]);
 
-  
+  /*
   const {
     sdk,
     provider: ethereum,
@@ -129,7 +129,8 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
     readOnlyCalls,
     connected,
   } = useSDK();
-  
+  */
+
   /*
   useEffect(() => {
 
@@ -169,7 +170,7 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
     console.log("useEffect QR Order")
 
     // GraphQL subscription
-    const topicName = 'qrItemOrder-'+account
+    const topicName = 'qrItemOrder-'+walletAddr
     console.log('Listen to kafka topic: '+topicName)
     setTopic(topicName)
     
