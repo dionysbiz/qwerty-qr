@@ -71,6 +71,7 @@ const en = {
   qrscanner_confirming_msg1: 'Processing..',
   qrscanner_confirming_msg2: 'Please wait until confirmation from Metamask',
   qrscanner_confirming_msg3: 'The screen may go back & forward a few times',
+  qrscanner_confirming_cancel: 'Cancel Trade',
 
   qrscanner_fail_msg1: 'Transaction fail',
   qrscanner_fail_msg2: 'Back to Home',

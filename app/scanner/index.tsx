@@ -182,6 +182,7 @@ export default function Home(navigation) {
   const onBack = async () => {
     setFailModalVisible(false)
     setSuccessModalVisible(false)
+    setWaitingModalVisible(false)
     qrLock.current = false;
     handleBackPress()
   }
@@ -418,15 +419,18 @@ export default function Home(navigation) {
         //onBackdropPress={() => setConfirmModalVisible(false)}
       >
        
-        <Text>{langPack.qrscanner_askConfirm}</Text>
+        
         <Layout
           style={styles.containerInfo}
           level='1'
         >
-        <Text>{langPack.qrscanner_askConfirm_itemName}: {qrData.name}</Text>
-        <Text>{langPack.qrscanner_askConfirm_itemPrice}: {qrData.crypto_price_ezread} {qrData.crypto_name_short}</Text>
+        <Text category='h5'>{langPack.qrscanner_askConfirm}</Text>
+        <Text></Text>
+        <Text status='info' category='p1'>{langPack.qrscanner_askConfirm_itemName}: {qrData.name}</Text>
+        <Text status='info' category='p1'>{langPack.qrscanner_askConfirm_itemPrice}: {qrData.crypto_price_ezread} {qrData.crypto_name_short}</Text>
+        <Text></Text>
         <Text>{langPack.qrscanner_askConfirm_receiverAddr}:</Text>
-        <Text>{qrData.toWalletAddr.substring(0, 25)}..</Text>
+        <Text status='warning' category='label'>{qrData.toWalletAddr.substring(0, 25)}..</Text>
         </Layout>
         <Layout
           style={styles.confirmBackdrop}
@@ -451,6 +455,10 @@ export default function Home(navigation) {
           <Text>{langPack.qrscanner_confirming_msg1}</Text>
           <Text>{langPack.qrscanner_confirming_msg2}</Text>
           <Text>{langPack.qrscanner_confirming_msg3}</Text>
+          <Text></Text>
+          <Button style={styles.button} onPress={() => onBack()}>
+            {langPack.qrscanner_confirming_cancel}
+          </Button>
         </View>
       </Modal>
 

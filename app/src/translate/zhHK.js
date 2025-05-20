@@ -71,6 +71,7 @@ const zhHK = {
   qrscanner_confirming_msg1: '處理中..',
   qrscanner_confirming_msg2: '請留意Metamask確認信息',
   qrscanner_confirming_msg3: '畫面或會來回跳動數次，請安心等待',
+  qrscanner_confirming_cancel: '取消交易',
 
   qrscanner_fail_msg1: '交易失敗',
   qrscanner_fail_msg2: '返回主頁',
