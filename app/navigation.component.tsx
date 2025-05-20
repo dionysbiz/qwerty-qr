@@ -375,7 +375,7 @@ export const AppNavigator = (): JSX.Element => {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack}/>}/>
+          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack} walletAddr={account}/>}/>
           <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
           <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
           <Stack.Screen name='ReceivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
