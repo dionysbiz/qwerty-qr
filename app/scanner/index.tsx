@@ -410,13 +410,14 @@ export default function Home(navigation) {
       </TouchableOpacity>
       */}
 
+      <Overlay />
+
       <Modal
         visible={confirmModalVisible}
         backdropStyle={styles.confirmBackdrop}
         //onBackdropPress={() => setConfirmModalVisible(false)}
       >
        
-      <Overlay />
         <Text>{langPack.qrscanner_askConfirm}</Text>
         <Layout
           style={styles.containerInfo}
