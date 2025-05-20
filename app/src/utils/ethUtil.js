@@ -60,7 +60,7 @@ export async function checkWalletExist() {
   
 }
 
-checkWalletExist()
+//checkWalletExist()
 /*
 export function getChainlistJSON() {
   
@@ -327,6 +327,15 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
     }
   }
   */
+  console.log("-----Transaction info-----")
+  console.log("chainId",chainId)
+  console.log("contractAddr",contractAddr)
+  console.log("paymentTokenName",paymentTokenName)
+  console.log("fromAddr",fromAddr)
+  console.log("toAddr", toAddr)
+  console.log("amount",amount)
+  console.log("-----Ready to get the gas price-----")
+
 
   // Get the gas price
   web3.eth.getGasPrice().then(async (result) => {
