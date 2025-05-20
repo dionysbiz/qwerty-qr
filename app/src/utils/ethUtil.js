@@ -327,14 +327,14 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
     }
   }
   */
-  console.log("-----Transaction info-----")
-  console.log("chainId",chainId)
-  console.log("contractAddr",contractAddr)
-  console.log("paymentTokenName",paymentTokenName)
-  console.log("fromAddr",fromAddr)
-  console.log("toAddr", toAddr)
-  console.log("amount",amount)
-  console.log("-----Ready to get the gas price-----")
+  console.debug("-----Transaction info-----")
+  console.debug("chainId",chainId)
+  console.debug("contractAddr",contractAddr)
+  console.debug("paymentTokenName",paymentTokenName)
+  console.debug("fromAddr",fromAddr)
+  console.debug("toAddr", toAddr)
+  console.debug("amount",amount)
+  console.debug("-----Ready to get the gas price-----")
 
 
   // Get the gas price
@@ -354,8 +354,8 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
       unit='ether'
     }
 
-    console.log("chainId")
-    console.log(chainId)
+    console.log("chainId", chainId)
+    console.log()
           //case 'Ethereum Mainnet':
 
     switch (String(chainId)) {
@@ -409,6 +409,7 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
     // Trigger Transaction
     if (paymentTokenName.includes("Ethereum")) {
       // Special handling for Ethereum
+      console.log("=============================================")
       console.log(`Read to send ${paymentTokenName} with no contract address`)
       walletCall = web3.eth.sendTransaction({
         from: fromAddr, 
@@ -426,14 +427,15 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
         onSuccess(receipt)
       });
       return walletCall;
-    } // else HIDDEN {
+    } else {
       // Other Tokens
+      console.log("=============================================")
       console.log(`Read to send ERC20 token ${paymentTokenName} token Address ${contractAddr}`)
       
       // Get the ABI from etherscan
       getEtherscanAbi(chainId, contractAddr).then((response) => {
-        //if (response.status === '1') {
-        if (response.status === '1' && false) {
+        if (response.status === '1') {
+        //if (response.status === '1' && false) {
           console.log("Get ABI from Etherscan API successfully.")  
           console.log(response.message);
           abiEtherscan = JSON.parse(response.result);
@@ -460,17 +462,21 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
         }
 
         console.log(`Going to send ${amount} ${unit} `)
-        const amountHex = '0x'+Number(amount).toString(16)
+        const amountHex = '0x'+Number(amount).toString(16) //2544 MNEM
 
         const amountWei = web3.utils.toWei(amount, unit)
         console.log(`Convert to ${amountWei} wei`)
-        const amountWeiHex = '0x'+Number(amountWei).toString(16)
+        const amountWeiHex = '0x'+Number(amountWei).toString(16) //9040x16 MNEM
+
+        //const amountEther = web3.utils.toEther(amountWei, 'wei')
+        //console.log(`Convert to ${amountEther} ether`)
+        //const amountEtherHex = '0x'+Number(amountEther).toString(16)
 
         console.log(`from ${fromAddr} to ${toAddr} in chainId ${targetChainId}`)
 
         //console.log(contract)
         walletCall = contract.methods
-        .transfer(toAddr, web3.utils.toWei(amountHex, unit))
+        .transfer(toAddr, web3.utils.toWei(amount, unit))
         .send({
             from: fromAddr,
             // value: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),
@@ -501,7 +507,7 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
         return walletCall
           
       }) 
-    // HIDDEN ELSE } 
+     } // HIDDEN ELSE for debug 
 
   })
 }
