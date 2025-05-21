@@ -375,12 +375,22 @@ export const AppNavigator = (): JSX.Element => {
 
   const ShopManagementStack = () => {
     const Stack = createNativeStackNavigator();
+    //console.debug("checkLangPack",JSON.stringify(langPack))
+    //<Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack} walletAddr={account} currentChainId={currentChainId}/>}/>
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name='ShopManagementScreen' component={() => <ShopManagementScreen langPack={langPack} walletAddr={account} currentChainId={currentChainId}/>}/>
-          <Stack.Screen name='OnlineShopItemScreen' component={() =><OnlineShopItemScreen/>}/>
-          <Stack.Screen name='OfflineQRMenuScreen' component={() =><OfflineQRMenuScreen/>}/>
-          <Stack.Screen name='ReceivedOrdersScreen' component={() =><ReceivedOrdersScreen/>}/>
+          <Stack.Screen name='ShopManagementScreen' 
+            children={() => (
+              <ShopManagementScreen
+                langPack={langPack} // Pass langPack directly as a prop
+                walletAddr={currentAccount}
+                currentChainId={currentChainId}
+              />
+            )}
+          />
+          <Stack.Screen name='OnlineShopItemScreen' component={OnlineShopItemScreen}/>
+          <Stack.Screen name='OfflineQRMenuScreen' component={OfflineQRMenuScreen}/>
+          <Stack.Screen name='ReceivedOrdersScreen' component={ReceivedOrdersScreen}/>
 
         </Stack.Navigator>
     )
