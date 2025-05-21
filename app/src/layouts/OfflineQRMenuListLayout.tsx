@@ -118,7 +118,7 @@ export const OfflineQRMenuListLayout = ({langPack, walletAddr, currentChainId, i
       }
     };
     */
-  }, [isFocused])
+  }, [])
 
   //
   const renderItemAccessory = (item): React.ReactElement => (

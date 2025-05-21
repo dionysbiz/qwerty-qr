@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button, Card, Icon, IconElement, List, ListItem, Layout, Modal, Text  } from '@ui-kitten/components';
 import {StyleSheet, Alert, View } from 'react-native';
+import { AppState, AppStateStatus } from 'react-native';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Realm, useApp, useAuth, useQuery, useRealm, useUser} from '@realm/react';
@@ -109,7 +110,7 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
   const [currentViewingItem, setCurrentViewingItem] = useState(itemNull);
   const [currentEditingOrder, setCurrentEditingOrder] = useState(itemNull);
 
-  //const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
+  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
 
 
   const [topic, setTopic] = useState('testtopic');
@@ -131,7 +132,7 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
   } = useSDK();
   */
 
-  /*
+  
   useEffect(() => {
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
@@ -150,20 +151,37 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
     };
 
   }, [appState]);
+  
+
+  /*
+  const handleAppState = (appState: AppStateStatus) => {
+    //canOpenLink = appState === 'active';
+    console.debug(`Received Order List check AppState change: ${appState} `);
+  };
+
+  useEffect(() => {
+    const appStateSub = AppState.addEventListener('change', handleAppState);
+
+    return () => {
+      appStateSub.remove();
+    };
+  }, []);
   */
 
   useEffect(() => {
 
     if (isFocused) {
-      console.log('ReceivedQROrderListLayout is focused');
+      console.debug('ReceivedQROrderListLayout is focused');
       // Perform actions when the screen is focused
-      loadOrderItem2List()
-
+      if (appState==="active") {
+        console.debug('--> and so ');
+        loadOrderItem2List()
+      }
     } else {
-      console.log('ReceivedQROrderListLayout is not focused');
+      console.debug('ReceivedQROrderListLayout is not focused');
       // Perform actions when the screen is unfocused
     }
-  }, [isFocused]);
+  }, []);
 
   useEffect(() => {
     //const realm = new Realm({ schema: [QROrderSchema,ArchivedQROrderSchema] });
@@ -216,8 +234,8 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
           walletAddr, 
           item.fromAddr, //Buyers address
           item.crypto_price_ezread, 
-          null, //onTransactionSuccess
-          null) //onTransactionFail
+          onSuccessRefund, //onTransactionSuccess
+          onFailRefund) //onTransactionFail
         }
       }>
       {langPack.receivedQROrderListLayout_list_btn_refund}
@@ -421,6 +439,8 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
 
   const loadOrderItem2List = async() => {
     
+    console.debug("======== Load received orders from Local Realm DB ==========")
+
     //let realm = new Realm({schema: [QROrderSchema]});
     let data = [{name: 'FirstItemname', description: 'DescripTioN'}]
     data=[]
@@ -594,7 +614,12 @@ export const ReceivedQROrderListLayout = ({langPack, walletAddr, isFocused}): JS
     setTimeout(function (){loadArchivedOrderItem2List()}, 1000)
   }
 
-  const onConfirmRefund = () => {
+  const onSuccessRefund = () => {
+    console.log("Refund Success")
+  }
+
+  const onFailRefund = () => {
+    console.log("Refund Fail")
   }
   
 
