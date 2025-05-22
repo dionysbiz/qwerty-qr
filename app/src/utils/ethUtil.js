@@ -361,18 +361,68 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
     switch (String(chainId)) {
       case '0x1':
         //console.log("after web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')")  
-        console.log("Gas price in gwei from web3.eth.getGasPrice()")  
-        gasFee = Math.round(web3.utils.fromWei(result, 'gwei'))
-        //gasFee = web3.utils.toBN(Math.round(web3.utils.fromWei(result, 'gwei')))
-        //console.log(gasFee)
-        //const gasbigIntValue = BigInt(gasFee);
-        //console.log(gasbigIntValue)
+        
+        console.log("=====Gas price in gwei from web3.eth.getGasPrice()=====")  
+        console.log("-------This fee is the priority fee -----")  
+        console.log("-------According to how fast you want the transaction to complete, it should be 1+n% and put to maxPriorityFeePerGas -----") 
+        lowGasFeeGwei = web3.utils.fromWei(result, 'gwei')
+        console.log('gasPrice after to gwei', lowGasFeeGwei)
+        lowGasFeeWei = web3.utils.fromWei(result, 'wei')
+        console.log('gasPrice after to wei', lowGasFeeWei)
+
+        console.log("=====Priority Fee calculations:=====") 
+        priorityFeeWei = Math.round(lowGasFeeWei*1.05)
+        priorityFeeGwei = web3.utils.fromWei(priorityFeeWei, 'gwei')
+        console.log('priorityFee to gwei', priorityFeeGwei)
+        priorityFeeGwei = Math.round((priorityFeeGwei) * 100) / 100
+        console.log('priorityFee to gwei after Round', priorityFeeGwei)
+        priorityFeeWei = web3.utils.toWei(priorityFeeGwei, 'gwei')
+        console.log('priorityFee back to wei after Round', priorityFeeWei)
+
+        console.log("=====Max Fee calculations:=====") 
+        /*
+        maxFeeWei = Math.round(lowGasFeeWei*1.05)
+        maxFeeGwei = web3.utils.fromWei(maxFeeWei, 'gwei')
+        console.log('maxFee to gwei', maxFeeGwei)
+        maxFeeGwei = Math.round((maxFeeGwei) * 100) / 100
+        console.log('maxFee to gwei after Round', maxFeeGwei)
+        maxFeeWei = web3.utils.toWei(maxFeeGwei, 'gwei')
+        console.log('maxFee back to wei after Round', maxFeeWei)
+        */
+        
+        await web3.eth.getBlock("pending").then((block) => {
+          const baseFee = Number(block.baseFeePerGas);
+          console.log("=====baseFee from web3.eth.getBlock()=====")  
+          console.log('baseFee',baseFee)  
+          maxFeeWei = parseInt(priorityFeeWei, 10)+baseFee-1
+        })
+        maxFeeGwei = web3.utils.fromWei(maxFeeWei, 'gwei')
+        console.log('maxFee to gwei', maxFeeGwei)
+        maxFeeGwei = Math.round((maxFeeGwei) * 100) / 100
+        console.log('maxFee to gwei after Round', maxFeeGwei)
+        maxFeeWei = web3.utils.toWei(maxFeeGwei, 'gwei')
+        console.log('maxFee back to wei after Round', maxFeeWei)
+
         // Convert to hexadecimal string and pad to 16 characters (64 bits)
-        gasFeeHex = gasFee.toString(16).padStart(16, '0');
+        lowGasFeeHex = parseInt(lowGasFeeWei, 10).toString(16);
+        priorityFeeHex = parseInt(priorityFeeWei, 10).toString(16);
+        maxFeeHex = parseInt(maxFeeWei, 10).toString(16);
+
+        console.log('lowGasFee in Hex',lowGasFeeHex)
+        console.log('priorityFee in Hex',priorityFeeHex)
+        console.log('maxFee in Hex',maxFeeHex)
+
+        lowGasFeeHex = lowGasFeeHex.padStart(16, '0');
+        priorityFeeHex = priorityFeeHex.padStart(16, '0');
+        maxFeeHex = maxFeeHex.padStart(16, '0');
     
         // Add the '0x' prefix
-        gasFeeHex=`0x${gasFeeHex}`
-        console.log(gasFeeHex)
+        lowGasFeeHex=`0x${lowGasFeeHex}`
+        priorityFeeHex=`0x${priorityFeeHex}`
+        maxFeeHex=`0x${maxFeeHex}`
+        console.log('final lowGasFee in Hex',lowGasFeeHex)
+        console.log('final priorityFee in Hex',priorityFeeHex)
+        console.log('final maxFee in Hex',maxFeeHex)
       break;
 
       case 'Rinkeby':
@@ -480,8 +530,10 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
         .send({
             from: fromAddr,
             // value: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),
-            gasPrice: gasFeeHex,
+            //gasPrice: lowGasFeeHex,
             gas: web3.utils.toHex(65000),
+            maxPriorityFeePerGas: priorityFeeHex,
+            maxFeePerGas: maxFeeHex,
             chainId: targetChainId,
             data: ''
         })
