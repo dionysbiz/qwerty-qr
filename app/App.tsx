@@ -9,6 +9,8 @@ import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
 
 import React, { useEffect } from 'react';
+import { useColorScheme, StatusBar, View } from 'react-native';
+
 
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, IconRegistry, Layout, Text } from '@ui-kitten/components';
@@ -99,6 +101,9 @@ export default function App() {
     console.debug(`AppState change: ${appState} canOpenLink=${canOpenLink}`);
   };
 
+  const isDarkMode = useColorScheme() === 'dark';
+
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', handleAppState);
 
@@ -135,7 +140,17 @@ export default function App() {
       </WithSDKConfig>
     </SDKConfigProvider>
     */
-   
+
+    <>
+    {/*
+    <View style={[styles.statusBarBackground || {}]}></View>
+    */}
+    <StatusBar
+      translucent
+      backgroundColor="steelblue"
+      barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+    />
+    
     <MetaMaskProvider
       debug={debug}
       sdkOptions={{
@@ -181,7 +196,7 @@ export default function App() {
           <AppNavigator/>
         </ApplicationProvider>
     </MetaMaskProvider>
-   
+    </>
    
   );
 }

@@ -519,12 +519,13 @@ export const AppNavigator = (): JSX.Element => {
     <>
     {/*
     <View style={[styles.statusBarBackground || {}]}></View>
-    */}
+    
     <StatusBar
       translucent
       backgroundColor="steelblue"
       barStyle={isDarkMode ? 'light-content' : 'dark-content'}
     />
+    */}
       
     <SafeAreaView style={{ flex: 1 }}>
          
