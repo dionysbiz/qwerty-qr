@@ -394,7 +394,8 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
           const baseFee = Number(block.baseFeePerGas);
           console.log("=====baseFee from web3.eth.getBlock()=====")  
           console.log('baseFee',baseFee)  
-          maxFeeWei = parseInt(priorityFeeWei, 10)+baseFee-1
+          //maxFeeWei = parseInt(priorityFeeWei, 10)+baseFee-1
+          maxFeeWei = parseInt(lowGasFeeWei, 10)+baseFee-1
         })
         maxFeeGwei = web3.utils.fromWei(maxFeeWei, 'gwei')
         console.log('maxFee to gwei', maxFeeGwei)
@@ -532,7 +533,7 @@ export async function triggerTransactionv2(chainId, contractAddr, paymentTokenNa
             // value: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),
             //gasPrice: lowGasFeeHex,
             gas: web3.utils.toHex(65000),
-            maxPriorityFeePerGas: priorityFeeHex,
+            maxPriorityFeePerGas: lowGasFeeHex,
             maxFeePerGas: maxFeeHex,
             chainId: targetChainId,
             data: ''
