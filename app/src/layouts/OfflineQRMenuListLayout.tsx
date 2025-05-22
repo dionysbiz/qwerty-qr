@@ -619,8 +619,7 @@ export const OfflineQRMenuListLayout = ({langPack, walletAddr, currentChainId, i
           <Button 
             size='large' 
             disabled={false} 
-            //onPress={() => setTimeout(() => saveQrToDisk(qrRef, currentEditingItem.name), 300)}
-            onPress={() => null}
+            onPress={() => setTimeout(() => saveQrToDisk(qrRef, currentEditingItem.name), 300)}
             >
             {langPack.offlineQRMenuListLayout_button_exportQR}
           </Button>
