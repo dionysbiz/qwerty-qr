@@ -1,9 +1,10 @@
 import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Button, IndexPath, Card, Text, Layout, Select, SelectItem, MenuItem, Input, OverflowMenu } from '@ui-kitten/components';
+import { Button, IndexPath, Card, Text, Layout, Select, SelectItem, MenuItem, Input, OverflowMenu, Radio, RadioGroup } from '@ui-kitten/components';
 import PropTypes from 'prop-types';
 //import { useSDK } from '@metamask/sdk-react';
+import { getEtherscanAbi } from '../utils/ethUtil'
 
 let TOKENLIST = []
 
@@ -99,6 +100,8 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentCh
   const [saveBtnDisable, setSaveBtnDisable] = useState(true);
   const [saveBtnText, setSaveBtnText] = useState("Create");
 
+  const [selectedRadioIndex, setSelectedRadioIndex] = React.useState(0);
+
   //const [placementIndex, setPlacementIndex] = React.useState(new IndexPath(1, 0));
   //const placement = placements[placementIndex.row];
   let displayValue = TOKENLIST[selectedTokenIndex.row];
@@ -137,6 +140,14 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentCh
     setCHAINTOKENLISTVisible(!CHAINTOKENLISTVisible);
   };
 
+  const handleRadioSelect = (index) {
+    setSelectedRadioIndex(index)
+    setItemCryptoContractAddr('')
+    setItemCryptoChainId('')
+    setItemCryptoShort('')
+    setTokenShortDisplayValue('')
+  }
+
   const handleTokenSelect = (index) => {
     //console.log("handleTokenSelect")
     console.log("index",index)
@@ -164,10 +175,20 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentCh
       setSaveBtnDisable(false)
     }
 
-      
-
-
   };
+
+  const checkContractAddrABI = (contractAddr:String) => {
+    getEtherscanAbi(currentChainId, contractAddr).then((response) => {
+      if (response.status === '1') {
+        //if (response.status === '1' && false) {
+          console.log("Get ABI from Etherscan API successfully.")  
+          console.log(response.message);
+          //abiEtherscan = JSON.parse(response.result);
+          //contract = new web3.eth.Contract(abiEtherscan, contractAddr);
+        
+        }
+    })
+  }
 
   const hashCode = function(str:String) {
     var hash = 0,
@@ -268,8 +289,67 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentCh
             
             ) : <></>
           )
-      })}
+        })}
       </Select>
+      
+      {/* Reserved
+      <RadioGroup
+        selectedIndex={selectedRadioIndex}
+        onChange={index => handleRadioSelect(index)}
+      >
+        <Radio>
+          <Select style={styles.inputbox}
+            //placeholder='Select Token'
+            //visible={CHAINTOKENLISTVisible}
+            //onBackdropPress={toggleCHAINTOKENLIST}
+            disabled={selectedRadioIndex===1}
+            value={tokenShortDisplayValue}
+            selectedIndex={selectedTokenIndex}
+            onSelect={nextValue => {
+              handleTokenSelect(nextValue)
+              checkAllDataAvailable()
+            }}
+          >
+            {CHAINTOKENLIST.map((option, listIndex) => {
+              if (option.chainId === chainId) {
+                //setTokenList(option)
+                TOKENLIST = option
+              }
+              return (
+
+                option.chainId === chainId ? (
+                  
+                  <>
+                  {option.crypto.map((it, index) => (
+                    <SelectItem 
+                    key={it.id} 
+                    title={it.name_short}   
+                    //selected={handleTokenSelect(it)}
+                    
+                    />
+                  ))}
+                  </>
+                
+                ) : <></>
+              )
+            })}
+          </Select>
+        </Radio>
+        <Radio>
+          <Input style={styles.inputbox}
+            textStyle={styles.inputTextStyle}
+            disabled={selectedRadioIndex===0}
+            placeholder='ERC20 Contract Address'
+            value={itemDescription}
+            multiline={true}
+            onChangeText={nextValue => {
+              checkContractAddrABI(nextValue)
+            }}
+          />
+        </Radio>
+
+      </RadioGroup>
+      */}
       <Input style={styles.inputbox}
         placeholder={langPack.offlineQRMenuListLayout_itemEntry_price}
         value={itemPriceCryptoEzread}
