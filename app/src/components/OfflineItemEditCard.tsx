@@ -140,7 +140,7 @@ export const OfflineItemEditCard = ({ item, saveItemHandler, langPack, currentCh
     setCHAINTOKENLISTVisible(!CHAINTOKENLISTVisible);
   };
 
-  const handleRadioSelect = (index) {
+  const handleRadioSelect = (index) => {
     setSelectedRadioIndex(index)
     setItemCryptoContractAddr('')
     setItemCryptoChainId('')
