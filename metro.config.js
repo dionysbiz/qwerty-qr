@@ -8,7 +8,8 @@ config.resolver.extraNodeModules = {
     ...require('node-libs-expo'),
     ...require('node-libs-react-native'),
     //...require('react-native-tcp-socket'),
-    crypto: require.resolve('crypto-browserify'),
+    //crypto: require.resolve('crypto-browserify'),
+    'node:crypto': require.resolve('react-native-crypto'),
     //net: require.resolve('node-libs-react-native/mock/net'),
     net: require.resolve('react-native-tcp-socket'),
     tls: require.resolve('react-native-tcp-socket'),
@@ -24,6 +25,7 @@ config.resolver.extraNodeModules = {
     */
 };
 
+/*
 const { transformer } = config;
 
 config.transformer = {
@@ -31,6 +33,7 @@ config.transformer = {
     babelTransformerPath: require.resolve("react-native-qrcode-svg/textEncodingTransformation")
   };
 
+  */
 config.resolver.unstable_enablePackageExports= true,
 
 
